@@ -1,0 +1,7274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="icon" href="data:,">
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Cardiovascular Explorer — Offline Edition</title>
+<!-- ==================================================
+         CUSTOM CSS
+    ================================================== -->
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        html,
+        body {
+
+            width: 100%;
+            height: 100%;
+
+            margin: 0;
+
+            overflow: hidden;
+
+            font-family:
+                Arial, "Segoe UI", sans-serif;
+
+            background: #071018;
+
+            color: #ffffff;
+        }
+
+
+        body {
+            position: relative;
+        }
+
+
+        /* ==================================================
+           MAIN APPLICATION
+        ================================================== */
+
+        #app {
+
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+
+            flex-direction: column;
+
+            background:
+
+                radial-gradient(
+                    circle at 50% 35%,
+                    rgba(
+                        20,
+                        80,
+                        105,
+                        0.18
+                    ),
+                    transparent 45%
+                ),
+
+                #071018;
+        }
+
+
+        /* ==================================================
+           HEADER
+        ================================================== */
+
+        .app-header {
+
+            height: 72px;
+
+            flex-shrink: 0;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 24px;
+
+            border-bottom:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.08
+                );
+
+            background:
+                rgba(
+                    7,
+                    16,
+                    24,
+                    0.88
+                );
+
+            backdrop-filter:
+                blur(15px);
+
+            z-index: 20;
+        }
+
+
+        .brand {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 14px;
+        }
+
+
+        .brand-icon {
+
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 12px;
+
+            background:
+
+                linear-gradient(
+                    135deg,
+                    #dc2626,
+                    #7f1d1d
+                );
+
+            box-shadow:
+
+                0 0 25px
+                rgba(
+                    239,
+                    68,
+                    68,
+                    0.25
+                );
+
+            font-size: 20px;
+        }
+
+
+        .brand-text h1 {
+
+            margin: 0;
+
+            font-size: 18px;
+
+            font-weight: 800;
+
+            letter-spacing: -0.3px;
+        }
+
+
+        .brand-text p {
+
+            margin: 2px 0 0;
+
+            color: #94a3b8;
+
+            font-size: 11px;
+        }
+
+
+        .status {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            padding: 8px 13px;
+
+            border-radius: 30px;
+
+            background:
+                rgba(
+                    34,
+                    197,
+                    94,
+                    0.08
+                );
+
+            border:
+                1px solid
+                rgba(
+                    34,
+                    197,
+                    94,
+                    0.20
+                );
+
+            color: #86efac;
+
+            font-size: 12px;
+
+            font-weight: 600;
+        }
+
+
+        .status-dot {
+
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #22c55e;
+
+            box-shadow:
+                0 0 10px
+                #22c55e;
+        }
+
+
+        /* ==================================================
+           WORKSPACE
+        ================================================== */
+
+        .workspace {
+
+            flex: 1;
+
+            min-height: 0;
+
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1fr)
+                330px;
+        }
+
+
+        /* ==================================================
+           VIEWER
+        ================================================== */
+
+        #viewer {
+
+            position: relative;
+
+            min-width: 0;
+
+            min-height: 0;
+
+            overflow: hidden;
+
+            background:
+
+                radial-gradient(
+                    circle at center,
+                    rgba(
+                        38,
+                        87,
+                        110,
+                        0.16
+                    ),
+                    transparent 48%
+                ),
+
+                linear-gradient(
+                    135deg,
+                    #08141d,
+                    #061018
+                );
+        }
+
+
+        #heartCanvas {
+
+            position: absolute;
+
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            display: block;
+        }
+
+
+        /* ==================================================
+           VIEWER LABEL
+        ================================================== */
+
+        .viewer-label {
+
+            position: absolute;
+
+            top: 20px;
+            left: 20px;
+
+            z-index: 5;
+
+            padding: 12px 16px;
+
+            border-radius: 12px;
+
+            background:
+                rgba(
+                    7,
+                    16,
+                    24,
+                    0.70
+                );
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.08
+                );
+
+            backdrop-filter:
+                blur(10px);
+        }
+
+
+        .viewer-label strong {
+
+            display: block;
+
+            font-size: 13px;
+        }
+
+
+        .viewer-label span {
+
+            display: block;
+
+            margin-top: 3px;
+
+            color: #64748b;
+
+            font-size: 11px;
+        }
+
+
+        /* ==================================================
+           VIEWER CONTROLS
+        ================================================== */
+
+        .viewer-controls {
+
+            position: absolute;
+
+            left: 20px;
+            bottom: 20px;
+
+            z-index: 5;
+
+            display: flex;
+
+            gap: 8px;
+
+            flex-wrap: wrap;
+        }
+
+
+        .control-btn {
+
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 11px;
+
+            background:
+                rgba(
+                    7,
+                    16,
+                    24,
+                    0.78
+                );
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.10
+                );
+
+            color: #cbd5e1;
+
+            cursor: pointer;
+
+            transition:
+                0.25s ease;
+
+            backdrop-filter:
+                blur(10px);
+        }
+
+
+        .control-btn:hover {
+
+            color: #ffffff;
+
+            border-color:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.25
+                );
+
+            transform:
+                translateY(-2px);
+
+            background:
+                rgba(
+                    20,
+                    35,
+                    46,
+                    0.90
+                );
+        }
+
+
+        /* ==================================================
+           SIDEBAR
+        ================================================== */
+
+        .sidebar {
+
+            min-width: 0;
+
+            overflow-y: auto;
+
+            background: #0b1720;
+
+            border-left:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.08
+                );
+
+            padding: 22px;
+        }
+
+
+        .sidebar::-webkit-scrollbar {
+
+            width: 5px;
+        }
+
+
+        .sidebar::-webkit-scrollbar-thumb {
+
+            background: #334155;
+
+            border-radius: 10px;
+        }
+
+
+        .sidebar-title {
+
+            margin-bottom: 22px;
+        }
+
+
+        .sidebar-title h2 {
+
+            margin: 0;
+
+            font-size: 18px;
+
+            font-weight: 800;
+        }
+
+
+        .sidebar-title p {
+
+            margin: 6px 0 0;
+
+            color: #64748b;
+
+            font-size: 12px;
+
+            line-height: 1.5;
+        }
+
+
+        /* ==================================================
+           INFORMATION CARD
+        ================================================== */
+
+        .info-card {
+
+            padding: 18px;
+
+            margin-bottom: 18px;
+
+            border-radius: 16px;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.035
+                );
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.08
+                );
+        }
+
+
+        .info-icon {
+
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 12px;
+
+            margin-bottom: 14px;
+
+            background:
+                rgba(
+                    239,
+                    68,
+                    68,
+                    0.10
+                );
+
+            color: #f87171;
+        }
+
+
+        .info-card h3 {
+
+            margin:
+                0 0 7px;
+
+            font-size: 16px;
+        }
+
+
+        .info-card p {
+
+            margin: 0;
+
+            color: #94a3b8;
+
+            font-size: 12px;
+
+            line-height: 1.7;
+        }
+
+
+        /* ==================================================
+           FACTS
+        ================================================== */
+
+        .fact {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 4px;
+
+            padding:
+                9px 0;
+
+            border-top:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.06
+                );
+        }
+
+
+        .fact strong {
+
+            color: #cbd5e1;
+
+            font-size: 11px;
+        }
+
+
+        .fact span {
+
+            color: #64748b;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+        }
+
+        /* ==================================================
+                ANATOMY STRUCTURE BUTTONS
+        ================================================== */
+
+.anatomy-mode-actions,
+.anatomy-view-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 0 0 9px;
+}
+
+.anatomy-mode-actions button,
+.anatomy-view-actions button {
+    min-height: 36px;
+    padding: 8px 7px;
+    border: 1px solid rgba(255, 204, 51, .35);
+    border-radius: 9px;
+    background: rgba(255, 204, 51, .06);
+    color: #f6d365;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.anatomy-mode-actions button:hover,
+.anatomy-view-actions button:hover {
+    background: rgba(255, 204, 51, .17);
+    border-color: rgba(255, 204, 51, .7);
+}
+
+.anatomy-mode-actions button.mode-active {
+    background: linear-gradient(135deg, rgba(255, 204, 51, .24), rgba(255, 170, 0, .10));
+    border-color: #ffcc33;
+    box-shadow: inset 0 0 0 1px rgba(255, 204, 51, .2), 0 0 12px rgba(255, 204, 51, .12);
+    color: #fff0ad;
+}
+
+.anatomy-mode-description {
+    color: #aebbd0;
+    font-size: 10px;
+    line-height: 1.45;
+    margin: -2px 0 10px;
+}
+
+.anatomy-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.anatomy-btn {
+    padding: 10px 8px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px;
+    background: rgba(255,255,255,.035);
+    color: #cbd5e1;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: left;
+    transition: .25s ease;
+}
+
+.anatomy-btn:hover {
+    background: rgba(255,255,255,.08);
+    color: #ffffff;
+    border-color: rgba(255,255,255,.18);
+}
+
+.anatomy-btn.active {
+    background: rgba(239,68,68,.12);
+    border-color: rgba(239,68,68,.35);
+    color: #fca5a5;
+}
+
+        /* ==================================================
+           PANEL TITLE
+        ================================================== */
+
+        .panel-title {
+
+            margin:
+                24px 0 12px;
+
+            color: #cbd5e1;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+        }
+
+
+        /* ==================================================
+           CONTROL PANEL
+        ================================================== */
+
+        .control-panel {
+
+            padding: 17px;
+
+            border-radius: 16px;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.035
+                );
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.08
+                );
+        }
+
+
+        .control-row {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 12px;
+
+            margin-bottom: 14px;
+        }
+
+
+        .control-row label {
+
+            color: #94a3b8;
+
+            font-size: 12px;
+        }
+
+
+        .value {
+
+            color: #ffffff;
+
+            font-weight: 700;
+        }
+
+
+        /* ==================================================
+           RANGE SLIDER
+        ================================================== */
+
+        input[type="range"] {
+
+            width: 100%;
+
+            accent-color: #ef4444;
+
+            cursor: pointer;
+        }
+
+
+        /* ==================================================
+           ACTION BUTTON
+        ================================================== */
+
+        .action-btn {
+
+            width: 100%;
+
+            padding:
+                12px 14px;
+
+            margin-top: 10px;
+
+            border-radius: 11px;
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.10
+                );
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.04
+                );
+
+            color: #cbd5e1;
+
+            cursor: pointer;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            transition:
+                0.25s ease;
+        }
+
+
+        .action-btn:hover {
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.08
+                );
+
+            color: #ffffff;
+        }
+
+
+        /* ==================================================
+           LEARNING OBJECTIVE
+        ================================================== */
+
+        .learning-card {
+
+            padding: 16px;
+
+            border-radius: 14px;
+
+            background:
+                rgba(
+                    59,
+                    130,
+                    246,
+                    0.05
+                );
+
+            border:
+                1px solid
+                rgba(
+                    59,
+                    130,
+                    246,
+                    0.12
+                );
+        }
+
+
+        .learning-card p {
+
+            margin: 0;
+
+            color: #94a3b8;
+
+            font-size: 12px;
+
+            line-height: 1.7;
+        }
+
+
+        /* ==================================================
+           AUTHOR
+        ================================================== */
+
+        .author-signature {
+
+            position: absolute;
+
+            right: 18px;
+
+            bottom: 15px;
+
+            z-index: 6;
+
+            color:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.55
+                );
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            letter-spacing:
+                0.5px;
+
+            pointer-events: none;
+
+            text-shadow:
+                0 0 10px
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.18
+                );
+        }
+
+
+        
+/* Offline-safe icons and standard footer */
+.offline-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1em;
+  line-height: 1;
+  font-family: "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+.brand-icon .offline-icon { font-size: 27px; }
+.standard-footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 14px 12px;
+  text-align: center;
+  color: #ffd84a;
+  background: #080d12;
+  border-top: 1px solid rgba(255, 215, 0, .28);
+  line-height: 1.25;
+}
+.standard-footer .footer-name {
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  color: #ffd84a;
+  text-shadow: 0 0 9px rgba(255, 215, 0, .22);
+}
+.standard-footer .footer-role {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: .2px;
+  color: #e5edf7;
+}
+.standard-footer .footer-role strong { font-weight: 800; }
+@media (max-width: 600px) {
+  .standard-footer { gap: 4px; padding: 9px 8px 11px; }
+  .standard-footer .footer-name { font-size: 21px; }
+  .standard-footer .footer-role { font-size: 14px; }
+}
+
+/* ==================================================
+           RESPONSIVE
+        ================================================== */
+
+        @media(max-width:900px) {
+
+            .workspace {
+
+                grid-template-columns:
+                    minmax(0, 1fr)
+                    290px;
+            }
+        }
+
+
+        @media(max-width:700px) {
+
+            .app-header {
+
+                height: 62px;
+
+                padding:
+                    0 14px;
+            }
+
+
+            .brand-text p {
+
+                display: none;
+            }
+
+
+            .workspace {
+
+                grid-template-columns:
+                    1fr;
+
+                grid-template-rows:
+                    minmax(0, 1fr)
+                    auto;
+            }
+
+
+            .sidebar {
+
+                max-height: 310px;
+
+                border-left: 0;
+
+                border-top:
+                    1px solid
+                    rgba(
+                        255,
+                        255,
+                        255,
+                        0.08
+                    );
+            }
+
+
+            .viewer-label {
+
+                top: 12px;
+                left: 12px;
+            }
+
+
+            .viewer-controls {
+
+                left: 12px;
+                bottom: 12px;
+            }
+        }
+
+        /* ==========================================================
+          ACTIVE ANATOMY BUTTON
+        ========================================================== */
+
+       .anatomy-active {
+
+         background:
+           linear-gradient(
+             135deg,
+             rgba(255, 204, 51, 0.22),
+             rgba(255, 170, 0, 0.10)
+         ) !important;
+
+        border-color:
+          rgba(255, 204, 51, 0.75) !important;
+
+        color:
+          #ffd75a !important;
+
+        box-shadow:
+          0 0 12px
+          rgba(255, 204, 51, 0.25);
+
+        }
+
+        
+    /* =========================================
+         BLOOD FLOW SIMULATION PANEL
+     ========================================= */
+
+       .blood-flow-panel {
+           margin-top: 22px;
+           padding: 18px;
+           border: 1px solid rgba(80, 160, 210, 0.25);
+           border-radius: 14px;
+           background: linear-gradient(
+            145deg,
+           rgba(18, 39, 55, 0.96),
+           rgba(9, 22, 34, 0.96)
+          );
+           color: #e8f3ff;
+           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+       }
+
+      .blood-flow-panel h2 {
+          margin: 0 0 10px;
+          font-size: 20px;
+          line-height: 1.4;
+          color: #ffffff;
+       }
+
+       .blood-flow-panel p {
+          margin: 0 0 15px;
+          color: #b8c9dc;
+          font-size: 13px;
+          line-height: 1.6;
+       }
+
+       .blood-flow-buttons {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-bottom: 14px;
+       }
+
+       .blood-flow-buttons button {
+          padding: 9px 12px;
+          border: 1px solid rgba(100, 180, 230, 0.3);
+          border-radius: 8px;
+          background: #17354a;
+          color: #eaf6ff;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+       .blood-flow-buttons button:hover {
+          background: #24516d;
+          transform: translateY(-1px);
+       }
+
+       #startBloodFlowBtn {
+          background: #087f70;
+          border-color: #19b89e;
+       }
+
+       #startBloodFlowBtn:hover {
+          background: #099985;
+       }
+
+       #pauseBloodFlowBtn {
+          background: #59461b;
+          border-color: #a88636;
+       }
+
+       #resetBloodFlowBtn {
+         background: #293849;
+       }
+
+       #bloodFlowStatus {
+          margin-bottom: 12px;
+          padding: 10px 12px;
+          border-radius: 8px;
+          background: rgba(40, 65, 85, 0.5);
+          color: #78e4c8;
+          font-size: 12px;
+          font-weight: 600;
+       }
+
+       #bloodFlowPath {
+          padding: 12px;
+          border-left: 3px solid #e7b64b;
+          border-radius: 5px;
+          background: rgba(255, 255, 255, 0.035);
+          color: #d0dfed;
+          font-size: 12px;
+          line-height: 1.9;
+          overflow-wrap: anywhere;
+       }
+
+       @media (max-width: 600px) {
+       .blood-flow-panel {
+          padding: 14px;
+          }
+
+       .blood-flow-buttons button {
+          flex: 1 1 auto;
+          }
+       }
+
+
+    
+
+        /* ==================================================
+           PORTFOLIO THEME — BLUE / GOLD PREMIUM FINISH
+           Scoped visual overrides; simulation logic unchanged.
+        ================================================== */
+
+        :root {
+            --portfolio-bg: #121212;
+            --portfolio-panel: #1a1a1a;
+            --portfolio-panel-2: #202020;
+            --portfolio-gold: #FFD700;
+            --portfolio-gold-soft: #FFC107;
+            --portfolio-cyan: #38BDF8;
+            --portfolio-text: #FFFFFF;
+            --portfolio-muted: #D1D5DB;
+            --portfolio-border: rgba(255, 215, 0, 0.22);
+            --portfolio-glow: rgba(255, 215, 0, 0.18);
+        }
+
+        html, body {
+            font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+            background: var(--portfolio-bg);
+            color: var(--portfolio-text);
+        }
+
+        #app {
+            position: relative;
+            isolation: isolate;
+            background:
+                radial-gradient(circle at 12% 18%, rgba(56, 189, 248, 0.09), transparent 28%),
+                radial-gradient(circle at 88% 82%, rgba(255, 215, 0, 0.075), transparent 30%),
+                linear-gradient(135deg, #121212, #171717 52%, #101820);
+        }
+
+        #app::before,
+        #app::after {
+            content: "";
+            position: absolute;
+            width: 440px;
+            height: 440px;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(18px);
+            opacity: 0.42;
+            z-index: -1;
+        }
+
+        #app::before {
+            top: 5%;
+            left: -220px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.16), transparent 70%);
+            animation: portfolioAmbientBlue 16s ease-in-out infinite alternate;
+        }
+
+        #app::after {
+            right: -230px;
+            bottom: -8%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.12), transparent 70%);
+            animation: portfolioAmbientGold 18s ease-in-out infinite alternate;
+        }
+
+        @keyframes portfolioAmbientBlue {
+            from { transform: translate3d(0, 0, 0) scale(0.92); }
+            to { transform: translate3d(110px, 70px, 0) scale(1.12); }
+        }
+
+        @keyframes portfolioAmbientGold {
+            from { transform: translate3d(0, 0, 0) scale(0.95); }
+            to { transform: translate3d(-90px, -70px, 0) scale(1.12); }
+        }
+
+        .app-header {
+            position: relative;
+            height: 78px;
+            padding: 0 26px;
+            background: rgba(18, 18, 18, 0.92);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.24);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+            backdrop-filter: blur(18px);
+        }
+
+        .app-header::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--portfolio-cyan), var(--portfolio-gold), transparent);
+            background-size: 220% 100%;
+            animation: portfolioHeaderShine 7s linear infinite;
+            opacity: 0.9;
+        }
+
+        @keyframes portfolioHeaderShine {
+            from { background-position: 100% 0; }
+            to { background-position: -120% 0; }
+        }
+
+        .brand {
+            gap: 13px;
+        }
+
+        .brand-icon {
+            position: relative;
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            color: #121212;
+            background: linear-gradient(135deg, #fff4a3, #FFD700 48%, #F4B400);
+            border: 1px solid rgba(255, 255, 255, 0.48);
+            box-shadow: 0 0 18px rgba(255, 215, 0, 0.25), 0 0 30px rgba(56, 189, 248, 0.08);
+            animation: portfolioIconPulse 3.8s ease-in-out infinite;
+        }
+
+        .brand-icon::after {
+            content: "";
+            position: absolute;
+            inset: -4px;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 17px;
+            pointer-events: none;
+        }
+
+        @keyframes portfolioIconPulse {
+            0%, 100% { box-shadow: 0 0 14px rgba(255, 215, 0, 0.20), 0 0 26px rgba(56, 189, 248, 0.06); }
+            50% { box-shadow: 0 0 22px rgba(255, 215, 0, 0.34), 0 0 34px rgba(56, 189, 248, 0.14); }
+        }
+
+        .brand-text h1 {
+            color: var(--portfolio-text);
+            font-size: clamp(15px, 1.4vw, 19px);
+            letter-spacing: 0.15px;
+            text-shadow: 0 0 18px rgba(255, 215, 0, 0.08);
+        }
+
+        .brand-text p {
+            color: var(--portfolio-cyan);
+            font-size: 11px;
+            letter-spacing: 0.25px;
+        }
+
+        .status {
+            border-color: rgba(255, 215, 0, 0.28);
+            background: rgba(255, 215, 0, 0.06);
+            color: #ffe98a;
+            box-shadow: inset 0 0 14px rgba(255, 215, 0, 0.025);
+        }
+
+        .status-dot {
+            background: var(--portfolio-cyan);
+            box-shadow: 0 0 10px var(--portfolio-cyan);
+            animation: portfolioStatusPulse 1.8s ease-in-out infinite;
+        }
+
+        @keyframes portfolioStatusPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.58; transform: scale(0.82); }
+        }
+
+        .workspace {
+            background: transparent;
+        }
+
+        #viewer {
+            background:
+                radial-gradient(circle at 50% 46%, rgba(56, 189, 248, 0.10), transparent 42%),
+                radial-gradient(circle at 50% 55%, rgba(255, 215, 0, 0.045), transparent 62%),
+                linear-gradient(135deg, #111820, #121212 68%, #171717);
+        }
+
+        #viewer::before {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border: 1px solid rgba(56, 189, 248, 0.11);
+            border-radius: 18px;
+            pointer-events: none;
+            z-index: 1;
+            box-shadow: inset 0 0 45px rgba(56, 189, 248, 0.025);
+        }
+
+        .viewer-label {
+            background: rgba(18, 18, 18, 0.78);
+            border: 1px solid rgba(255, 215, 0, 0.26);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), inset 0 0 20px rgba(255, 215, 0, 0.025);
+        }
+
+        .viewer-label strong {
+            color: var(--portfolio-gold);
+            letter-spacing: 0.25px;
+        }
+
+        .viewer-label span {
+            color: #b6c8d4;
+        }
+
+        .control-btn {
+            position: relative;
+            overflow: hidden;
+            background: rgba(18, 18, 18, 0.82);
+            border: 1px solid rgba(255, 215, 0, 0.28);
+            color: var(--portfolio-cyan);
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.22);
+        }
+
+        .control-btn::after {
+            content: "";
+            position: absolute;
+            top: -20%;
+            left: -130%;
+            width: 55%;
+            height: 140%;
+            transform: skewX(-25deg);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transition: left 0.55s ease;
+        }
+
+        .control-btn:hover {
+            color: #121212;
+            border-color: var(--portfolio-gold);
+            background: linear-gradient(135deg, #fff4a3, var(--portfolio-gold), #F4B400);
+            box-shadow: 0 0 16px rgba(255, 215, 0, 0.22);
+            transform: translateY(-3px);
+        }
+
+        .control-btn:hover::after {
+            left: 150%;
+        }
+
+        .author-signature {
+            color: var(--portfolio-gold);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.38);
+            letter-spacing: 1.3px;
+        }
+
+        .sidebar {
+            position: relative;
+            background: rgba(22, 22, 22, 0.97);
+            border-left: 1px solid rgba(255, 215, 0, 0.22);
+            scrollbar-color: rgba(255, 215, 0, 0.42) #171717;
+        }
+
+        .sidebar-title {
+            border-bottom-color: rgba(255, 215, 0, 0.17);
+        }
+
+        .sidebar-title h2,
+        .panel-title {
+            color: var(--portfolio-gold);
+            text-shadow: 0 0 14px rgba(255, 215, 0, 0.10);
+        }
+
+        .sidebar-title p,
+        .learning-card p {
+            color: var(--portfolio-muted);
+        }
+
+        .panel-title {
+            position: relative;
+        }
+
+        .panel-title::after {
+            content: "";
+            display: block;
+            width: 42px;
+            height: 2px;
+            margin-top: 7px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, var(--portfolio-cyan), var(--portfolio-gold));
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.22);
+        }
+
+        .anatomy-btn,
+        #resetViewBtn,
+        .action-btn,
+        .blood-flow-buttons button {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 215, 0, 0.22);
+            background: linear-gradient(135deg, #222222, #191919);
+            color: #e8e8e8;
+            transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease, color 0.28s ease, background 0.28s ease;
+        }
+
+        .anatomy-btn::before,
+        #resetViewBtn::before,
+        .action-btn::before,
+        .blood-flow-buttons button::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(110deg, transparent 20%, rgba(255, 215, 0, 0.08), transparent 70%);
+            transform: translateX(-120%);
+            transition: transform 0.5s ease;
+            pointer-events: none;
+        }
+
+        .anatomy-btn:hover,
+        #resetViewBtn:hover,
+        .action-btn:hover,
+        .blood-flow-buttons button:hover {
+            transform: translateY(-2px);
+            border-color: rgba(56, 189, 248, 0.65);
+            color: var(--portfolio-gold);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.24), 0 0 16px rgba(56, 189, 248, 0.08);
+        }
+
+        .anatomy-btn:hover::before,
+        #resetViewBtn:hover::before,
+        .action-btn:hover::before,
+        .blood-flow-buttons button:hover::before {
+            transform: translateX(120%);
+        }
+
+        .anatomy-btn.active,
+        .anatomy-btn.selected,
+        .anatomy-btn[aria-pressed="true"] {
+            color: #121212;
+            background: linear-gradient(135deg, #fff4a3, var(--portfolio-gold), #F4B400);
+            border-color: #ffe878;
+            box-shadow: 0 0 16px rgba(255, 215, 0, 0.18);
+        }
+
+        .blood-flow-panel,
+        .info-card,
+        .control-panel,
+        .learning-card {
+            background: linear-gradient(145deg, rgba(32, 32, 32, 0.98), rgba(22, 22, 22, 0.98));
+            border: 1px solid rgba(255, 215, 0, 0.20);
+            border-radius: 16px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+        }
+
+        .blood-flow-panel h2,
+        .info-card h3 {
+            color: var(--portfolio-gold);
+        }
+
+        .blood-flow-panel p,
+        #bloodFlowPath,
+        #anatomyDescription,
+        .fact span {
+            color: #d1d5db;
+        }
+
+        .blood-flow-buttons button,
+        #startBloodFlowBtn,
+        #pauseBloodFlowBtn,
+        #resetBloodFlowBtn {
+            border-radius: 9px;
+        }
+
+        #startBloodFlowBtn {
+            background: linear-gradient(135deg, #fff4a3, var(--portfolio-gold), #F4B400);
+            border-color: var(--portfolio-gold);
+            color: #121212;
+        }
+
+        #startBloodFlowBtn:hover {
+            background: linear-gradient(135deg, #ffffff, #ffe96a, var(--portfolio-gold));
+            color: #121212;
+        }
+
+        #pauseBloodFlowBtn {
+            background: rgba(56, 189, 248, 0.10);
+            border-color: rgba(56, 189, 248, 0.35);
+            color: var(--portfolio-cyan);
+        }
+
+        #resetBloodFlowBtn {
+            background: #242424;
+        }
+
+        #bloodFlowStatus {
+            border: 1px solid rgba(56, 189, 248, 0.20);
+            background: rgba(56, 189, 248, 0.06);
+            color: #8ee0ff;
+        }
+
+        #bloodFlowPath {
+            border-left-color: var(--portfolio-gold);
+            background: rgba(255, 215, 0, 0.035);
+        }
+
+        select,
+        input[type="range"] {
+            accent-color: var(--portfolio-gold);
+        }
+
+        select {
+            background-color: #1b1b1b;
+            color: #f3f4f6;
+            border-color: rgba(255, 215, 0, 0.26);
+        }
+
+        .info-icon {
+            background: linear-gradient(135deg, #fff4a3, var(--portfolio-gold), #F4B400);
+            color: #121212;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
+        }
+
+        .fact {
+            border-top-color: rgba(255, 215, 0, 0.13);
+        }
+
+        .fact strong {
+            color: var(--portfolio-cyan);
+        }
+
+        .value,
+        #bloodFlowSpeedValue,
+        .blood-speed-control label {
+            color: var(--portfolio-gold);
+        }
+
+        .sidebar button:focus-visible,
+        .sidebar select:focus-visible,
+        .viewer-controls button:focus-visible {
+            outline: 2px solid var(--portfolio-cyan);
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 900px) {
+            .app-header {
+                padding: 0 16px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #app::before,
+            #app::after,
+            .brand-icon,
+            .status-dot,
+            .app-header::after {
+                animation: none !important;
+            }
+
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div id="app">
+
+
+    <!-- ==================================================
+         HEADER
+    ================================================== -->
+
+    <header class="app-header">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+
+                <span class="offline-icon" aria-hidden="true">♥</span>
+
+            </div>
+
+
+            <div class="brand-text">
+
+                <h1>
+                    Cardiovascular Explorer
+                </h1>
+
+                <p>
+                    3D Human Heart • Interactive Biology Laboratory
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="status">
+
+            <span class="status-dot"></span>
+
+            3D ENGINE READY
+
+        </div>
+
+    </header>
+
+
+
+    <!-- ==================================================
+         WORKSPACE
+    ================================================== -->
+
+    <main class="workspace">
+
+
+        <!-- ==================================================
+             3D VIEWER
+        ================================================== -->
+
+        <section id="viewer">
+
+
+            <div class="viewer-label">
+
+                <strong>
+                    Human Heart
+                </strong>
+
+                <span>
+                    Drag to rotate • Scroll to zoom • Right-drag to pan
+                </span>
+
+            </div>
+
+
+            <canvas
+                id="heartCanvas"
+            ></canvas>
+
+
+            <div class="viewer-controls">
+
+
+                <button
+                    class="control-btn"
+                    id="resetView"
+                    title="Reset View"
+                >
+
+                    <span class="offline-icon" aria-hidden="true">↻</span>
+
+                </button>
+
+
+                <button
+                    class="control-btn"
+                    id="zoomIn"
+                    title="Zoom In"
+                >
+
+                    <span class="offline-icon" aria-hidden="true">+</span>
+
+                </button>
+
+
+                <button
+                    class="control-btn"
+                    id="zoomOut"
+                    title="Zoom Out"
+                >
+
+                    <span class="offline-icon" aria-hidden="true">−</span>
+
+                </button>
+
+
+                <button
+                    class="control-btn"
+                    id="pauseRotation"
+                    title="Pause Rotation"
+                >
+
+                    <span class="offline-icon" aria-hidden="true">Ⅱ</span>
+
+                </button>
+
+                <button
+                   class="control-btn"
+                   id="pauseHeartbeat"
+                   title="Play Heartbeat"
+>
+
+                   <span class="offline-icon" aria-hidden="true">▶</span>
+
+                 </button>
+
+            </div>
+
+
+            <div class="author-signature">
+
+                Inam Alvi
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- ==================================================
+             SIDEBAR
+        ================================================== -->
+
+        <aside class="sidebar">
+
+
+            <div class="sidebar-title">
+
+                <h2>
+                    Anatomy Explorer
+                </h2>
+
+                <p>
+                    Explore the human heart in 3D.
+                    Click an anatomical hotspot to inspect
+                    an individual structure.
+                </p>
+
+            </div>
+
+           <!-- ==================================================
+                 ANATOMICAL STRUCTURE BUTTONS
+            ================================================== -->
+
+            <div class="panel-title">
+               Anatomical Structures
+            </div>
+
+            
+            <div class="anatomy-mode-actions" role="group" aria-label="Anatomy interaction mode">
+                <button id="highlightModeBtn" class="mode-active" type="button" aria-pressed="true">
+                    ✦ Highlight Mode
+                </button>
+                <button id="dissectionModeBtn" type="button" aria-pressed="false">
+                    ◉ Dissection Mode
+                </button>
+            </div>
+            <p id="anatomyModeDescription" class="anatomy-mode-description">
+                Select a structure to highlight it while keeping the complete heart visible.
+            </p>
+            <div class="anatomy-view-actions">
+                <button id="showAllAnatomyBtn" type="button">
+                    ◉ Show All Parts
+                </button>
+                <button id="resetViewBtn" type="button">
+                    ↺ Reset View
+                </button>
+            </div>
+
+
+            <div class="anatomy-buttons">
+
+               <button class="anatomy-btn" data-structure="aorta">
+                  Aorta
+                </button>
+
+                <button class="anatomy-btn" data-structure="superiorVenaCava">
+                   Superior Vena Cava
+                </button>
+
+                <button class="anatomy-btn" data-structure="rightAtrium">
+                   Right Atrium
+                </button>
+
+                <button class="anatomy-btn" data-structure="rightVentricle">
+                   Right Ventricle
+                </button>
+
+                <button class="anatomy-btn" data-structure="leftAtrium">
+                   Left Atrium
+                </button>
+
+                <button class="anatomy-btn" data-structure="leftVentricle">
+                   Left Ventricle
+                </button>
+
+                <button class="anatomy-btn" data-structure="pulmonaryArtery">
+                   Pulmonary Artery
+                </button>
+
+                <button class="anatomy-btn" data-structure="pulmonaryVeins">
+                   Pulmonary Veins
+                </button>
+
+                <button class="anatomy-btn" data-structure="tricuspidValve">
+                   Tricuspid Valve
+                </button>
+
+                <button class="anatomy-btn" data-structure="mitralValve">
+                   Mitral Valve
+                </button>
+
+                <button class="anatomy-btn" data-structure="aorticValve">
+                   Aortic Valve
+                </button>
+
+                <button class="anatomy-btn" data-structure="pulmonaryValve">
+                   Pulmonary Valve
+                </button>
+                
+                <button class="anatomy-btn" data-structure="inferiorVenaCava">
+                    Inferior Vena Cava
+                </button>
+
+
+            </div>
+
+            
+            <div class="blood-speed-control">
+               <label for="bloodFlowSpeed">
+                  Blood Flow Speed:
+                 <span id="bloodFlowSpeedValue">1.0×</span>
+               </label>
+
+               <input
+                 type="range"
+                 id="bloodFlowSpeed"
+                 min="0.2"
+                 max="3"
+                 step="0.1"
+                 value="1"
+               />
+            </div>
+
+            
+     
+<!-- ==================================================
+     BLOOD FLOW ANIMATION CONTROLS
+================================================== -->
+
+<section id="bloodFlowControls" class="blood-flow-panel">
+
+    <h2>🫀 Blood Flow Simulation</h2>
+
+    <p>
+        Follow the movement of blood through the heart,
+        lungs, and body.
+    </p>
+
+    <div class="blood-flow-buttons">
+
+        <button id="startBloodFlowBtn" type="button">
+            ▶ Start Blood Flow
+        </button>
+
+        <button id="pauseBloodFlowBtn" type="button">
+            ⏸ Pause
+        </button>
+
+        <button id="resetBloodFlowBtn" type="button">
+            ↺ Reset Flow
+        </button>
+
+    </div>
+
+    <div id="bloodFlowStatus" aria-live="polite">
+        Ready to start
+    </div>
+
+    <div id="bloodFlowPath">
+        Right Atrium → Tricuspid Valve → Right Ventricle
+        → Pulmonary Valve → Lungs → Pulmonary Veins
+        → Left Atrium → Mitral Valve → Left Ventricle
+        → Aortic Valve → Body
+    </div>
+
+    <!-- BLOOD FLOW STAGES -->
+    <div class="blood-stage-control">
+
+        <label for="bloodFlowStage">
+            Explore Blood Flow Stage
+        </label>
+
+        <select id="bloodFlowStage">
+            <option value="all">Complete circulation paths</option>
+            <option value="blue1">1. Venae cavae → Right atrium</option>
+            <option value="blue2">2. Right atrium → Right ventricle</option>
+            <option value="blue3">3. Right ventricle → Pulmonary arteries</option>
+            <option value="red1">4. Pulmonary veins → Left atrium</option>
+            <option value="red2">5. Left atrium → Left ventricle</option>
+            <option value="red3">6. Left ventricle → Aorta</option>
+        </select>
+
+        <p id="bloodFlowStageInfo" aria-live="polite">
+            Showing both blood-flow paths.
+        </p>
+
+    </div>
+
+</section>
+
+
+            <!-- ==================================================
+                 SELECTED STRUCTURE
+            ================================================== -->
+
+            <div
+                class="info-card"
+                id="anatomyCard"
+            >
+
+                <div class="info-icon">
+
+                    <i
+                        class="fa-solid fa-heart"
+                    ></i>
+
+                </div>
+
+
+                <h3
+                    id="anatomyName"
+                >
+                    Human Heart
+                </h3>
+
+
+                <p
+                    id="anatomyDescription"
+                >
+                    The heart is a muscular organ that pumps
+                    blood through the pulmonary and systemic
+                    circulatory systems.
+                </p>
+
+
+                <div
+                    class="fact"
+                >
+
+                    <strong>
+                        Function
+                    </strong>
+
+                    <span
+                        id="anatomyFunction"
+                    >
+                        Maintains continuous blood circulation.
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="fact"
+                >
+
+                    <strong>
+                        Facts
+                    </strong>
+
+                    <span
+                        id="anatomyFacts"
+                    >
+                        Four chambers: two atria and two ventricles.
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 HEART RATE
+            ================================================== -->
+
+            <div class="panel-title">
+
+                Cardiac Controls
+
+            </div>
+
+
+            <div class="control-panel">
+
+
+                <div class="control-row">
+
+                    <label>
+                        Heart Rate
+                    </label>
+
+
+                    <span
+                        class="value"
+                        id="bpmValue"
+                    >
+                        72 BPM
+                    </span>
+
+                </div>
+
+
+                <input
+                    type="range"
+                    id="bpmSlider"
+                    min="40"
+                    max="180"
+                    value="72"
+                >
+
+
+                <button
+                    class="action-btn"
+                    id="bloodFlowBtn"
+                >
+
+                    <span class="offline-icon" aria-hidden="true">●</span>
+
+                    Show Blood Flow
+
+                </button>
+
+
+                <button
+                    class="action-btn"
+                    id="xrayBtn"
+                >
+
+                    <i
+                        class="fa-solid fa-x-ray"
+                    ></i>
+
+                    X-Ray / Cutaway Mode
+
+                </button>
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 LEARNING OBJECTIVE
+            ================================================== -->
+
+            <div class="panel-title">
+
+                Learning Objective
+
+            </div>
+
+
+            <div class="learning-card">
+
+                <p>
+
+                    Trace deoxygenated blood from the
+                    vena cava through the right side of
+                    the heart toward the lungs, and trace
+                    oxygenated blood through the left side
+                    of the heart toward the aorta.
+
+                </p>
+
+            </div>
+
+
+        </aside>
+
+
+    </main>
+
+
+<footer class="standard-footer" aria-label="Author signature">
+  <div class="footer-name">Inam Alvi</div>
+  <div class="footer-role"><strong>Math Expert · Science Teacher · Web Developer</strong></div>
+</footer>
+
+</div>
+
+
+
+<!-- ==========================================================
+     THREE.JS IMPORT MAP
+
+     IMPORTANT:
+     The actual JavaScript module below is inside
+     <script type="module>.
+========================================================== -->
+
+<script type="importmap">
+
+{
+    "imports": {
+
+        "three": "./three.module.min.js",
+
+        "three/addons/": "./libs/examples/jsm/"
+
+    }
+}
+
+</script>
+
+
+
+<!-- ==========================================================
+     THREE.JS MODULE
+========================================================== -->
+
+<script type="module">
+
+
+/* ==========================================================
+   THREE.JS IMPORTS
+========================================================== */
+
+import * as THREE
+    from "three";
+
+
+import {
+    OrbitControls
+}
+from
+    "three/addons/controls/OrbitControls.js";
+
+
+import {
+    GLTFLoader
+}
+from
+    "three/addons/loaders/GLTFLoader.js";
+
+import {
+    DRACOLoader
+}
+from
+    "three/addons/loaders/DRACOLoader.js";
+
+
+console.log(
+    "❤️ Cardiovascular Explorer started."
+);
+
+
+/* ==========================================================
+   ORIGINAL CAMERA VIEW — GLOBAL VARIABLES
+========================================================== */
+
+let initialCameraPosition = null;
+let initialCameraTarget = null;
+
+
+/* ==========================================================
+   DOM ELEMENTS
+========================================================== */
+
+const canvas =
+    document.getElementById(
+        "heartCanvas"
+    );
+
+
+const viewer =
+    document.getElementById(
+        "viewer"
+    );
+
+
+if (
+    !canvas ||
+    !viewer
+) {
+
+    throw new Error(
+        "heartCanvas or viewer was not found."
+    );
+
+}
+
+
+
+/* ==========================================================
+   SCENE
+========================================================== */
+
+const scene =
+    new THREE.Scene();
+
+
+
+/* ==========================================================
+   CAMERA
+========================================================== */
+
+const camera =
+    new THREE.PerspectiveCamera(
+
+        45,
+
+        viewer.clientWidth /
+        viewer.clientHeight,
+
+        0.01,
+
+        1000
+
+    );
+
+
+camera.position.set(
+
+    0,
+
+    0,
+
+    4.8
+
+);
+
+
+
+/* ==========================================================
+   RENDERER
+========================================================== */
+
+const renderer =
+    new THREE.WebGLRenderer({
+
+        canvas: canvas,
+
+        antialias: true,
+
+        alpha: true
+
+    });
+
+
+renderer.setPixelRatio(
+
+    Math.min(
+
+        window.devicePixelRatio,
+
+        2
+
+    )
+
+);
+
+
+renderer.setSize(
+
+    viewer.clientWidth,
+
+    viewer.clientHeight
+
+);
+
+
+renderer.outputColorSpace =
+    THREE.SRGBColorSpace;
+
+
+renderer.toneMapping =
+    THREE.ACESFilmicToneMapping;
+
+
+renderer.toneMappingExposure =
+    1.1;
+
+
+
+/* ==========================================================
+   ORBIT CONTROLS
+========================================================== */
+
+const controls =
+    new OrbitControls(
+
+        camera,
+
+        renderer.domElement
+
+    );
+
+
+controls.enableDamping =
+    true;
+
+
+controls.dampingFactor =
+    0.06;
+
+
+controls.enablePan =
+    true;
+
+
+controls.minDistance =
+    1;
+
+
+controls.maxDistance =
+    10;
+
+
+controls.autoRotate =
+    false;
+
+
+controls.autoRotateSpeed =
+    0.7;
+
+
+controls.target.set(
+
+    0,
+
+    0,
+
+    0
+
+);
+
+
+controls.update();
+
+
+
+/* ==========================================================
+   LIGHTING
+========================================================== */
+
+const ambientLight =
+    new THREE.HemisphereLight(
+
+        0xffffff,
+
+        0x18222d,
+
+        2.2
+
+    );
+
+
+scene.add(
+    ambientLight
+);
+
+
+const keyLight =
+    new THREE.DirectionalLight(
+
+        0xffffff,
+
+        3
+
+    );
+
+
+keyLight.position.set(
+
+    4,
+
+    5,
+
+    6
+
+);
+
+
+scene.add(
+    keyLight
+);
+
+
+const fillLight =
+    new THREE.DirectionalLight(
+
+        0x9bdcff,
+
+        1.5
+
+    );
+
+
+fillLight.position.set(
+
+    -4,
+
+    2,
+
+    4
+
+);
+
+
+scene.add(
+    fillLight
+);
+
+
+const rimLight =
+    new THREE.DirectionalLight(
+
+        0xff7070,
+
+        1.2
+
+    );
+
+
+rimLight.position.set(
+
+    3,
+
+    -2,
+
+    -4
+
+);
+
+
+scene.add(
+    rimLight
+);
+
+
+
+/* ==========================================================
+   HEART GROUP
+========================================================== */
+
+const heartGroup =
+    new THREE.Group();
+
+
+scene.add(
+    heartGroup
+);
+
+
+let heartModel =
+    null;
+
+let anatomyHotspotGroup = null;
+
+let animationMixer =
+    null;
+
+
+
+
+
+/* ==========================================================
+   HEART MODEL LOADER
+========================================================== */
+
+// Load the GLB first, then initialize all model-dependent features.
+// This prevents diagnostics, camera fitting, and blood-flow paths from
+// running while heartModel is still null.
+var chamberMotion = [];
+
+async function initializeHeartExplorer() {
+    const loader = new GLTFLoader();
+    const dracoLoader = new DRACOLoader();
+
+    // Draco decoder files are expected in this local folder.
+    dracoLoader.setDecoderPath("./libs/examples/jsm/draco/");
+    loader.setDRACOLoader(dracoLoader);
+
+    console.log("❤️ Loading ./models/heart.glb ...");
+
+    try {
+        const gltf = await loader.loadAsync("./models/heart.glb");
+        console.log("✅ ❤️ heart.glb loaded successfully!");
+
+        heartModel = gltf.scene;
+        heartGroup.add(heartModel);
+
+        heartModel.traverse(function (object) {
+            if (object.isMesh) {
+                object.castShadow = true;
+                object.receiveShadow = true;
+                console.log("🫀 MESH:", object.name, "| UUID:", object.uuid);
+            }
+        });
+
+
+    
+/* ==================================================
+   DIAGNOSTIC — IDENTIFY HEART MESHES
+================================================== */
+
+console.log("========== HEART MESH SEARCH ==========");
+
+heartModel.traverse(function (object) {
+
+    if (object.isMesh) {
+
+        const meshName = object.name.toLowerCase();
+
+        if (
+            meshName.includes("heart") ||
+            meshName.includes("atrium") ||
+            meshName.includes("ventricle") ||
+            meshName.includes("valve") ||
+            meshName.includes("septum") ||
+            meshName.includes("papillary") ||
+            meshName.includes("leaflet") ||
+            meshName.includes("aorta") ||
+            meshName.includes("coronary") ||
+            meshName.includes("pulmonary")
+        ) {
+
+            console.log("❤️ POSSIBLE HEART PART:", object.name);
+
+        }
+
+    }
+
+});
+
+console.log("========== END HEART MESH SEARCH ==========");
+
+
+
+/* ==========================================================
+   DIAGNOSTIC — BLOOD FLOW MESHES
+========================================================== */
+
+console.log("========== BLOOD FLOW MESH CANDIDATES ==========");
+
+const bloodFlowMeshKeywords = [
+    "superior_vena_cava",
+    "inferior_vena_cava",
+    "right_atrium",
+    "tricuspid",
+    "right_ventricle",
+    "pulmonary_valve",
+    "pulmonary_trunk",
+    "pulmonary_artery",
+    "pulmonary_vein",
+    "left_atrium",
+    "mitral",
+    "left_ventricle",
+    "aortic_valve",
+    "ascending_aorta",
+    "aortic_arch",
+    "aorta"
+];
+
+heartModel.traverse(function (object) {
+
+    if (!object.isMesh) return;
+
+    const name = object.name.toLowerCase();
+
+    const matchedKeywords = bloodFlowMeshKeywords.filter(
+        keyword => name.includes(keyword)
+    );
+
+    if (matchedKeywords.length > 0) {
+        console.log(
+            "🩸 BLOOD FLOW MESH:",
+            object.name,
+            "| matched:",
+            matchedKeywords.join(", ")
+        );
+    }
+});
+
+console.log("========== END BLOOD FLOW MESHES ==========");
+
+
+
+/* ==========================================================
+   DIAGNOSTIC — BLOOD FLOW MESH POSITIONS
+========================================================== */
+
+console.log("========== BLOOD FLOW MESH POSITIONS ==========");
+
+const diagnosticMeshNames = [
+    "Right_atrium001",
+    "Right_ventricle001",
+    "Left_atrium001",
+    "Left_ventricle001",
+    "Superior_vena_cava001",
+    "Inferior_vena_cava_(thoracic_part)001",
+    "Inferior_vena_cava_(abdominal_part)001",
+    "Pulmonary_trunk001",
+    "Right_pulmonary_artery001",
+    "Left_pulmonary_artery001",
+    "Right_superior_pulmonary_vein001",
+    "Right_inferior_pulmonary_vein001",
+    "Left_inferior_pulmonary_vein001",
+    "Left_superior_pulmonary_vein001",
+    "Ascending_aorta001",
+    "Aortic_arch001",
+    "Thoracic_aorta001",
+    "Abdominal_aorta001"
+    
+];
+
+heartModel.updateWorldMatrix(true, true);
+
+heartModel.traverse(function (object) {
+
+    if (!object.isMesh) return;
+
+    if (diagnosticMeshNames.includes(object.name)) {
+
+        const box = new THREE.Box3().setFromObject(object);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+
+        console.log(
+           "🩸 " + object.name +
+           " | center: [" +
+           center.toArray().map(v => Number(v.toFixed(3))).join(", ") +
+           "] | size: [" +
+           size.toArray().map(v => Number(v.toFixed(3))).join(", ") +
+           "]"
+        );
+    }
+});
+
+console.log("========== END BLOOD FLOW POSITIONS ==========");
+
+
+
+/* ==========================================================
+   BLOOD FLOW — GET ACTUAL MESH POSITIONS
+========================================================== */
+
+function getBloodFlowMeshPosition(meshName) {
+
+    let foundMesh = null;
+
+    heartModel.traverse(function (object) {
+
+        if (
+            object.isMesh &&
+            object.name === meshName
+        ) {
+            foundMesh = object;
+        }
+
+    });
+
+    if (!foundMesh) {
+        console.warn(
+            "Blood flow mesh not found:",
+            meshName
+        );
+
+        return null;
+    }
+
+    // Calculate the mesh's world-space bounding-box center.
+    const box = new THREE.Box3().setFromObject(foundMesh);
+
+    if (box.isEmpty()) {
+        console.warn(
+            "Blood flow mesh has empty bounds:",
+            meshName
+        );
+
+        return null;
+    }
+
+    return box.getCenter(new THREE.Vector3());
+}
+
+
+
+
+/* ==========================================================
+   DIAGNOSTIC — FIND STAGE 6 ANATOMICAL MESHES
+
+   Prints:
+   1. Matching anatomical mesh names
+   2. World-space centers and dimensions
+   3. Sampled aortic arch vertices
+   4. Aortic arch vertex-group coordinates
+   5. Triangle connectivity
+   6. First 40 aortic arch vertices
+
+   This is diagnostic code only.
+   It does not change the model or animation.
+========================================================== */
+
+function logStage6Meshes() {
+
+    console.log("===== STAGE 6 MESH SEARCH =====");
+
+    if (!heartModel) {
+        console.warn(
+            "Stage 6 diagnostic skipped: heartModel is not loaded."
+        );
+        return;
+    }
+
+    heartModel.updateWorldMatrix(true, true);
+
+    heartModel.traverse(function (object) {
+
+        if (!object.isMesh) return;
+
+        const meshName = object.name.toLowerCase();
+
+        const isStage6Mesh =
+            meshName.includes("aortic") ||
+            meshName.includes("left_ventricle") ||
+            meshName.includes("ascending") ||
+            meshName.includes("ventricular") ||
+            meshName.includes("left_coronary_leaflet") ||
+            meshName.includes("non-coronary_leaflet") ||
+            meshName.includes("right_coronary_leaflet");
+
+        if (!isStage6Mesh) return;
+
+        // Calculate world-space mesh bounds.
+        const box = new THREE.Box3().setFromObject(object);
+
+        if (box.isEmpty()) {
+            console.warn(
+                "Stage 6 mesh has empty bounds:",
+                object.name
+            );
+            return;
+        }
+
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+
+        // Detailed diagnostics for the aortic arch.
+        if (object.name === "Aortic_arch001") {
+
+            const geometry = object.geometry;
+            const positions = geometry.attributes.position;
+            const indexAttribute = geometry.index;
+
+            if (!positions) {
+                console.warn(
+                    "Aortic arch has no position attribute."
+                );
+            } else {
+
+                // --------------------------------------------------
+                // 1. Sample every tenth vertex in world coordinates.
+                // --------------------------------------------------
+
+                const sampledVertices = [];
+
+                for (
+                    let i = 0;
+                    i < positions.count;
+                    i += 10
+                ) {
+                    const vertex = new THREE.Vector3()
+                        .fromBufferAttribute(positions, i);
+
+                    object.localToWorld(vertex);
+
+                    sampledVertices.push({
+                        index: i,
+                        x: Number(vertex.x.toFixed(4)),
+                        y: Number(vertex.y.toFixed(4)),
+                        z: Number(vertex.z.toFixed(4))
+                    });
+                }
+
+                console.log(
+                    "AORTIC ARCH SAMPLED VERTICES:"
+                );
+                console.table(sampledVertices);
+
+                // --------------------------------------------------
+                // 2. Calculate groups of 25 vertices.
+                // These are diagnostic averages, not a flow path.
+                // --------------------------------------------------
+
+                const groupSize = 25;
+                const groupSummaries = [];
+
+                for (
+                    let start = 0;
+                    start < positions.count;
+                    start += groupSize
+                ) {
+                    const localCenter = new THREE.Vector3();
+                    let count = 0;
+
+                    for (
+                        let i = start;
+                        i < Math.min(
+                            start + groupSize,
+                            positions.count
+                        );
+                        i++
+                    ) {
+                        const vertex = new THREE.Vector3()
+                            .fromBufferAttribute(positions, i);
+
+                        localCenter.add(vertex);
+                        count++;
+                    }
+
+                    if (count === 0) continue;
+
+                    localCenter.divideScalar(count);
+
+                    // Convert the averaged point into world coordinates.
+                    object.localToWorld(localCenter);
+
+                    groupSummaries.push({
+                        firstVertex: start,
+                        lastVertex: start + count - 1,
+                        x: Number(localCenter.x.toFixed(4)),
+                        y: Number(localCenter.y.toFixed(4)),
+                        z: Number(localCenter.z.toFixed(4))
+                    });
+                }
+
+                console.log(
+                    "AORTIC ARCH VERTEX GROUPS:"
+                );
+                console.table(groupSummaries);
+
+                // --------------------------------------------------
+                // 3. Print triangle connectivity.
+                // --------------------------------------------------
+
+                if (indexAttribute) {
+
+                    const triangleSamples = [];
+
+                    for (
+                        let i = 0;
+                        i + 2 < indexAttribute.count &&
+                        i < 90;
+                        i += 3
+                    ) {
+                        triangleSamples.push({
+                            triangle: i / 3,
+                            vertexA: indexAttribute.getX(i),
+                            vertexB: indexAttribute.getX(i + 1),
+                            vertexC: indexAttribute.getX(i + 2)
+                        });
+                    }
+
+                    console.log(
+                        "AORTIC ARCH TOPOLOGY:",
+                        "vertices =", positions.count,
+                        "| triangles =", indexAttribute.count / 3
+                    );
+
+                    console.log(
+                        "AORTIC ARCH TRIANGLE SAMPLES:"
+                    );
+                    console.table(triangleSamples);
+
+                } else {
+
+                    console.log(
+                        "AORTIC ARCH TOPOLOGY:",
+                        "Non-indexed geometry",
+                        "| vertices =", positions.count,
+                        "| triangles =", positions.count / 3
+                    );
+                }
+
+                // --------------------------------------------------
+                // 4. Print the first 40 vertices in original order.
+                // Coordinates are transformed into world space.
+                // --------------------------------------------------
+
+                const firstVertices = [];
+
+                for (
+                    let i = 0;
+                    i < Math.min(40, positions.count);
+                    i++
+                ) {
+                    const vertex = new THREE.Vector3()
+                        .fromBufferAttribute(positions, i);
+
+                    object.localToWorld(vertex);
+
+                    firstVertices.push({
+                        index: i,
+                        x: Number(vertex.x.toFixed(4)),
+                        y: Number(vertex.y.toFixed(4)),
+                        z: Number(vertex.z.toFixed(4))
+                    });
+                }
+
+                console.log(
+                    "AORTIC ARCH FIRST 40 VERTICES:"
+                );
+                console.table(firstVertices);
+            }
+        }
+
+        // ------------------------------------------------------
+        // 5. Print world-space center and dimensions of each mesh.
+        // ------------------------------------------------------
+
+        console.log(
+            "STAGE 6 POSITION: " + object.name +
+            " | center: [" +
+            center.x.toFixed(4) + ", " +
+            center.y.toFixed(4) + ", " +
+            center.z.toFixed(4) +
+            "] | size: [" +
+            size.x.toFixed(4) + ", " +
+            size.y.toFixed(4) + ", " +
+            size.z.toFixed(4) +
+            "]"
+        );
+
+    });
+
+    console.log("===== END STAGE 6 MESH SEARCH =====");
+}
+
+
+
+
+/* ==================================================
+   ISOLATE HEART — FIRST PASS
+================================================== */
+
+// Keep these named heart structures and nearby vessels.
+// All other meshes are hidden for this initial test.
+
+const heartMeshKeywords = [
+    "atrium",
+    "ventricle",
+    "valve",
+    "leaflet",
+    "papillary",
+    "septum",
+    "coronary",
+    "pulmonary_trunk",
+    "pulmonary_artery",
+    "pulmonary_vein",
+    "ascending_aorta",
+    "superior_vena_cava",
+    "inferior_vena_cava",
+    "aortic_arch",
+    "brachiocephalic",
+    "left_common_carotid",
+    "left_subclavian"
+];
+
+
+let keptHeartMeshes = 0;
+let hiddenOtherMeshes = 0;
+
+heartModel.traverse(function (object) {
+
+    if (!object.isMesh) return;
+
+    const name = object.name.toLowerCase();
+
+    const isHeartStructure = heartMeshKeywords.some(
+        keyword => name.includes(keyword)
+    );
+
+    object.visible = isHeartStructure;
+
+    if (isHeartStructure) {
+        keptHeartMeshes++;
+    } else {
+        hiddenOtherMeshes++;
+    }
+
+});
+
+console.log("❤️ Visible heart meshes:", keptHeartMeshes);
+console.log("Hidden non-heart meshes:", hiddenOtherMeshes);
+
+
+    // Calculate original model bounds
+const box = new THREE.Box3().setFromObject(heartModel);
+const center = box.getCenter(new THREE.Vector3());
+const size = box.getSize(new THREE.Vector3());
+
+const maxDimension = Math.max(size.x, size.y, size.z);
+
+if (maxDimension > 0) {
+
+    // Center the model
+    heartModel.position.sub(center);
+
+    // Scale the model
+    const desiredSize = 10.0;
+    heartModel.scale.setScalar(desiredSize / maxDimension);
+
+    // Add model to its intended group
+    heartGroup.add(heartModel);
+
+} else {
+    console.error("Heart model has invalid dimensions.");
+}
+
+
+
+
+
+/* ==========================================================
+   BUILD STAGE 6 PATH
+   Left ventricle → aortic valve → ascending aorta → arch
+
+   The first 30 Aortic_arch001 vertices form a connected strip:
+   triangles connect consecutive vertex pairs (0/1, 2/3, ...).
+   Pair midpoints are used as ordered centerline samples rather
+   than averaging arbitrary groups of the entire mesh.
+========================================================== */
+
+function buildStage6Path() {
+
+    if (!heartModel || !heartGroup) {
+        console.warn("Stage 6: heart model is not ready.");
+        return null;
+    }
+
+    heartGroup.updateWorldMatrix(true, true);
+    heartModel.updateWorldMatrix(true, true);
+
+    // Find anatomical mesh centers in heartGroup-local coordinates.
+    function getLocalMeshCenter(meshName) {
+        const worldPoint = getBloodFlowMeshPosition(meshName);
+        if (!worldPoint) return null;
+        return heartGroup.worldToLocal(worldPoint.clone());
+    }
+
+    const leftVentricle = getLocalMeshCenter("Left_ventricle001");
+    const ascendingAorta = getLocalMeshCenter("Ascending_aorta001");
+
+    const valveNames = [
+        "Left_coronary_leaflet001",
+        "Non-coronary_leaflet001",
+        "Right_coronary_leaflet001"
+    ];
+
+    const valveCenters = [];
+    valveNames.forEach(function (name) {
+        const center = getLocalMeshCenter(name);
+        if (center) valveCenters.push(center);
+    });
+
+    if (!leftVentricle || !ascendingAorta || valveCenters.length === 0) {
+        console.warn(
+            "Stage 6 path failed: required ventricle, valve, or aorta mesh is missing."
+        );
+        return null;
+    }
+
+    // The three leaflet centers are combined into one valve waypoint.
+    const valveCenter = new THREE.Vector3();
+    valveCenters.forEach(function (p) { valveCenter.add(p); });
+    valveCenter.divideScalar(valveCenters.length);
+
+    // Extract ordered centerline samples from the connected arch strip.
+    let archMesh = null;
+    heartModel.traverse(function (object) {
+        if (object.isMesh && object.name === "Aortic_arch001") {
+            archMesh = object;
+        }
+    });
+
+    if (!archMesh || !archMesh.geometry || !archMesh.geometry.attributes.position) {
+        console.warn("Stage 6: Aortic_arch001 geometry is unavailable.");
+        return new THREE.CatmullRomCurve3(
+            [leftVentricle, valveCenter, ascendingAorta],
+            false,
+            "centripetal"
+        );
+    }
+
+    const positions = archMesh.geometry.attributes.position;
+    const pairCount = Math.min(15, Math.floor(positions.count / 2));
+    const archCenterline = [];
+
+    for (let pair = 0; pair < pairCount; pair++) {
+        const a = new THREE.Vector3().fromBufferAttribute(positions, pair * 2);
+        const b = new THREE.Vector3().fromBufferAttribute(positions, pair * 2 + 1);
+
+        // Midpoint of each connected pair, transformed to world then parent-local space.
+        a.add(b).multiplyScalar(0.5);
+        archMesh.localToWorld(a);
+        heartGroup.worldToLocal(a);
+        archCenterline.push(a);
+    }
+
+    if (archCenterline.length < 3) {
+        console.warn("Stage 6: not enough arch centerline samples; using mesh centers.");
+        return new THREE.CatmullRomCurve3(
+            [leftVentricle, valveCenter, ascendingAorta,
+             getLocalMeshCenter("Aortic_arch001")].filter(Boolean),
+            false,
+            "centripetal"
+        );
+    }
+
+    // Orient the extracted arch line so its nearer endpoint follows the ascending aorta.
+    const firstDistance = archCenterline[0].distanceTo(ascendingAorta);
+    const lastDistance = archCenterline[archCenterline.length - 1]
+        .distanceTo(ascendingAorta);
+
+    if (lastDistance < firstDistance) {
+        archCenterline.reverse();
+    }
+
+    // Build the complete ordered route. Do not add the arch's bounding-box center:
+    // it lies inside the curve and causes particles to cut across the vessel.
+    const points = [leftVentricle, valveCenter, ascendingAorta];
+
+    archCenterline.forEach(function (point) {
+        const previous = points[points.length - 1];
+        if (previous.distanceTo(point) > 0.005) {
+            points.push(point.clone());
+        }
+    });
+
+    if (points.length < 4) {
+        console.warn("Stage 6 path failed: insufficient route points.");
+        return null;
+    }
+
+    const path = new THREE.CatmullRomCurve3(
+        points,
+        false,
+        "centripetal"
+    );
+
+    console.log("Stage 6 centerline path built:", points.length, "points.");
+    return path;
+}
+
+
+        /* ==================================================
+          ANATOMY HOTSPOT ATTACHMENT GROUP
+         ================================================== */
+
+        anatomyHotspotGroup =
+           new THREE.Group();
+
+        heartModel.add(
+           anatomyHotspotGroup
+        );
+
+        console.log(
+          "🫀 Anatomy hotspot group attached to heart model."
+       );  
+
+        heartGroup.position.set(
+            0,
+            0,
+            0
+        );
+
+
+        heartGroup.rotation.set(
+            0,
+            0,
+            0
+        );
+
+
+
+/* ==================================================
+   CAMERA — FOCUS ON ACTUAL HEART
+================================================== */
+
+// Make sure all transforms are updated
+heartGroup.updateMatrixWorld(true);
+
+
+/* ==================================================
+   FIND ACTUAL HEART STRUCTURES
+================================================== */
+
+const heartFocusBox = new THREE.Box3();
+
+let heartPartsFound = 0;
+
+heartGroup.traverse(function (obj) {
+
+    if (!obj.isMesh) return;
+
+    const name = obj.name.toLowerCase();
+
+    const isHeartPart =
+        name.includes("atrium") ||
+        name.includes("ventricle") ||
+        name.includes("valve") ||
+        name.includes("papillary") ||
+        name.includes("coronary");
+
+    if (isHeartPart) {
+
+        heartFocusBox.expandByObject(obj);
+
+        heartPartsFound++;
+    }
+
+});
+
+
+
+/* ==================================================
+   CAMERA SETUP
+================================================== */
+
+if (
+    heartPartsFound > 0 &&
+    !heartFocusBox.isEmpty()
+) {
+
+    const heartCenter =
+        heartFocusBox.getCenter(
+            new THREE.Vector3()
+        );
+
+    const heartSize =
+        heartFocusBox.getSize(
+            new THREE.Vector3()
+        );
+
+    const heartMax =
+        Math.max(
+            heartSize.x,
+            heartSize.y,
+            heartSize.z
+        );
+
+    console.log(
+        "❤️ HEART FOCUS PARTS:",
+        heartPartsFound
+    );
+
+    console.log(
+        "❤️ HEART CENTER:",
+        heartCenter
+    );
+
+    console.log(
+        "❤️ HEART SIZE:",
+        heartSize
+    );
+
+    /* ==================================================
+       CALCULATE SAFE CAMERA DISTANCE
+    ================================================== */
+
+    const fov =
+        THREE.MathUtils.degToRad(camera.fov);
+
+    const distance =
+        (
+            heartMax /
+            (2 * Math.tan(fov / 2))
+        ) * 2.5;
+
+    /* ==================================================
+       CAMERA — FIXED FRONT VIEW
+    ================================================== */
+
+    camera.position.set(
+        heartCenter.x,
+        heartCenter.y,
+        heartCenter.z + distance
+    );
+
+    /* ==================================================
+       CAMERA TARGET
+    ================================================== */
+
+    controls.target.set(
+        heartCenter.x,
+        heartCenter.y,
+        heartCenter.z
+    );
+
+    camera.lookAt(
+        heartCenter.x,
+        heartCenter.y,
+        heartCenter.z
+    );
+
+    /* ==================================================
+       CAMERA CLIPPING
+    ================================================== */
+
+    camera.near = 0.01;
+    camera.far = 10000;
+
+    camera.updateProjectionMatrix();
+    controls.update();
+
+    initialCameraPosition = camera.position.clone();
+    initialCameraTarget = controls.target.clone();
+
+    console.log("Original full-heart camera view saved.");
+    console.log("❤️ CAMERA POSITION:", camera.position);
+    console.log("❤️ CAMERA TARGET:", controls.target);
+    console.log("❤️ Camera focused on actual heart.");
+
+} else {
+
+    console.error(
+        "❌ Could not find actual heart structures."
+    );
+
+}
+
+
+// Prepare separate atrium/ventricle meshes for the simulated heartbeat.
+prepareChamberMotion();
+
+// ==================================================
+// GLB ANIMATION
+// ==================================================
+
+if (gltf.animations && gltf.animations.length > 0) {
+
+    animationMixer = new THREE.AnimationMixer(heartModel);
+
+    gltf.animations.forEach(function (clip) {
+        const action = animationMixer.clipAction(clip);
+        action.play();
+    });
+
+    // Start with the heart stationary; the Play Heartbeat control enables motion.
+    animationMixer.timeScale = 0;
+
+    console.log("🎬 GLB animation detected and paused until started.");
+
+} else {
+
+    console.log(
+        "ℹ️ No GLB animation. Using simulated heartbeat."
+    );
+
+}
+
+
+
+/* ==========================================================
+   LOADING PROGRESS CALLBACK
+========================================================== */
+
+function onHeartLoadingProgress(xhr) {
+
+    if (xhr.total > 0) {
+
+        const progress =
+            (xhr.loaded / xhr.total) * 100;
+
+        console.log(
+            "Heart loading: " + progress.toFixed(0) + "%"
+        );
+
+    }
+
+}
+
+
+/* ==========================================================
+   LOADING ERROR CALLBACK
+========================================================== */
+
+function onHeartLoadingError(error) {
+
+    console.error("❌ ERROR loading heart.glb");
+    console.error(error);
+
+}
+
+
+
+
+/* ==========================================================
+   HEART RATE
+========================================================== */
+
+const bpmSlider =
+    document.getElementById(
+        "bpmSlider"
+    );
+
+
+const bpmValue =
+    document.getElementById(
+        "bpmValue"
+    );
+
+
+let heartRate =
+    72;
+
+
+if (
+    bpmSlider
+) {
+
+    bpmSlider.addEventListener(
+
+        "input",
+
+        function () {
+
+            heartRate =
+                Number(
+                    this.value
+                );
+
+
+            if (
+                bpmValue
+            ) {
+
+                bpmValue.textContent =
+                    heartRate +
+                    " BPM";
+
+            }
+
+        }
+
+    );
+
+}
+
+
+if (
+    bpmValue
+) {
+
+    bpmValue.textContent =
+        heartRate +
+        " BPM";
+
+}
+
+
+
+/* ==========================================================
+   CHAMBER-BASED HEARTBEAT (NO WHOLE-HEART BOBBING)
+   The model contains separate Right/Left Atrium and Ventricle meshes.
+   Animate those chambers subtly instead of scaling the complete heart.
+========================================================== */
+
+let heartbeatEnabled = false;
+let heartbeatTime = 0;
+
+
+function prepareChamberMotion() {
+    chamberMotion.length = 0;
+    if (!heartModel) return;
+
+    heartModel.updateMatrixWorld(true);
+    heartModel.traverse(function (object) {
+        if (!object.isMesh || !object.geometry) return;
+
+        const name = (object.name || '').toLowerCase();
+        const isAtrium = name.includes('atrium') && !name.includes('appendage');
+        const isVentricle = name.includes('ventricle') &&
+            !name.includes('papillary') && !name.includes('vein') && !name.includes('artery');
+        if (!isAtrium && !isVentricle) return;
+
+        // Animate vertex positions on a private geometry copy. Object transforms
+        // stay untouched, and vertices near attachment edges receive less motion.
+        object.geometry = object.geometry.clone();
+        const geometry = object.geometry;
+        const position = geometry.getAttribute('position');
+        if (!position) return;
+
+        geometry.computeBoundingBox();
+        const box = geometry.boundingBox;
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        const basePositions = new Float32Array(position.array);
+        const weights = new Float32Array(position.count);
+
+        const safeY = Math.max(size.y, 1e-5);
+        const safeX = Math.max(size.x, 1e-5);
+        const safeZ = Math.max(size.z, 1e-5);
+
+        for (let i = 0; i < position.count; i++) {
+            const x = basePositions[i * 3];
+            const y = basePositions[i * 3 + 1];
+            const z = basePositions[i * 3 + 2];
+
+            // Preserve the upper attachment region (valves/vessels). The
+            // central/lower wall deforms most, fading smoothly toward the edges.
+            const ny = (y - box.min.y) / safeY; // 0 bottom, 1 top
+            let verticalWeight;
+            if (isAtrium) {
+                verticalWeight = Math.max(0, Math.min(1, (0.94 - ny) / 0.46));
+            } else {
+                verticalWeight = Math.max(0, Math.min(1, (0.98 - ny) / 0.34));
+            }
+            verticalWeight = verticalWeight * verticalWeight * (3 - 2 * verticalWeight);
+
+            const nx = (x - center.x) / (safeX * 0.5);
+            const nz = (z - center.z) / (safeZ * 0.5);
+            const radial = Math.min(1, Math.sqrt(nx * nx + nz * nz) * 0.7);
+            weights[i] = verticalWeight * (0.45 + 0.55 * radial);
+        }
+
+        chamberMotion.push({
+            object: object,
+            geometry: geometry,
+            position: position,
+            basePositions: basePositions,
+            weights: weights,
+            center: center,
+            phase: isAtrium ? 0.0 : 0.20,
+            strength: isVentricle ? 0.075 : 0.045,
+            isVentricle: isVentricle
+        });
+    });
+
+    console.log('Prepared localized chamber deformation:', chamberMotion.map(x => x.object.name));
+}
+
+function resetChamberMotion() {
+    chamberMotion.forEach(function (item) {
+        item.position.array.set(item.basePositions);
+        item.position.needsUpdate = true;
+        item.geometry.computeVertexNormals();
+        item.geometry.computeBoundingSphere();
+    });
+}
+
+function updateHeartbeat(delta) {
+    if (!heartModel || !heartbeatEnabled) return;
+
+    heartbeatTime += delta;
+    const cycleDuration = 60 / Math.max(heartRate || 72, 1);
+    const cycle = (heartbeatTime % cycleDuration) / cycleDuration;
+
+    chamberMotion.forEach(function (item) {
+        const localCycle = (cycle - item.phase + 1) % 1;
+        let contraction = 0;
+
+        // Fast squeeze, a brief systolic hold, then a smoother relaxation.
+        // Atria contract first; ventricles follow shortly afterward.
+        const start = item.isVentricle ? 0.20 : 0.015;
+        const squeezeDuration = item.isVentricle ? 0.12 : 0.085;
+        const holdDuration = item.isVentricle ? 0.055 : 0.025;
+        const relaxDuration = item.isVentricle ? 0.22 : 0.15;
+
+        if (localCycle >= start && localCycle < start + squeezeDuration) {
+            const p = (localCycle - start) / squeezeDuration;
+            contraction = p * p * (3 - 2 * p);
+        } else if (localCycle >= start + squeezeDuration &&
+                   localCycle < start + squeezeDuration + holdDuration) {
+            contraction = 1;
+        } else if (localCycle >= start + squeezeDuration + holdDuration &&
+                   localCycle < start + squeezeDuration + holdDuration + relaxDuration) {
+            const p = (localCycle - start - squeezeDuration - holdDuration) / relaxDuration;
+            contraction = 1 - (p * p * (3 - 2 * p));
+        }
+
+        const arr = item.position.array;
+        const base = item.basePositions;
+        const weights = item.weights;
+        const c = item.center;
+        const amount = item.strength * contraction;
+
+        for (let i = 0, v = 0; i < arr.length; i += 3, v++) {
+            const w = weights[v];
+            const x = base[i] - c.x;
+            const y = base[i + 1] - c.y;
+            const z = base[i + 2] - c.z;
+
+            // Local radial squeeze. Keep the top attachment zone nearly fixed;
+            // do not translate or rotate any chamber object.
+            const radialScale = 1 - amount * w;
+            arr[i] = c.x + x * radialScale;
+            arr[i + 1] = base[i + 1] + (c.y - base[i + 1]) * amount * w * 0.08;
+            arr[i + 2] = c.z + z * radialScale;
+        }
+
+        item.position.needsUpdate = true;
+        item.geometry.computeVertexNormals();
+        item.geometry.computeBoundingSphere();
+    });
+}
+
+/* ==========================================================
+   BLOOD FLOW
+========================================================== */
+
+let bloodFlowVisible = false;
+
+let bloodFlowPaused = true;
+
+let bloodFlowSpeed = 1;
+
+let activeBloodFlowStage = "all";
+
+
+
+/* ==========================================================
+   BLOOD FLOW SPEED SLIDER
+========================================================== */
+
+const bloodFlowSpeedSlider =
+    document.getElementById("bloodFlowSpeed");
+
+const bloodFlowSpeedValue =
+    document.getElementById("bloodFlowSpeedValue");
+
+if (bloodFlowSpeedSlider && bloodFlowSpeedValue) {
+
+    bloodFlowSpeedSlider.addEventListener("input", function () {
+
+        bloodFlowSpeed = Number(this.value);
+
+        bloodFlowSpeedValue.textContent =
+            bloodFlowSpeed.toFixed(1) + "×";
+
+    });
+
+}
+
+
+/* ==========================================================
+   BLOOD PARTICLE GROUPS
+========================================================== */
+
+const blueBloodGroup =
+    new THREE.Group();
+
+const redBloodGroup =
+    new THREE.Group();
+
+heartGroup.add(
+    blueBloodGroup
+);
+
+heartGroup.add(
+    redBloodGroup
+);
+
+
+/* ==========================================================
+   BLUE BLOOD MATERIAL
+========================================================== */
+
+const blueBloodMaterial =
+    new THREE.MeshBasicMaterial({
+
+        color: 0x168cff,
+
+        transparent: true,
+
+        opacity: 0.95
+
+    });
+
+
+
+/* ==========================================================
+   RED BLOOD MATERIAL
+========================================================== */
+
+const redBloodMaterial =
+    new THREE.MeshBasicMaterial({
+
+        color: 0xff3030,
+
+        transparent: true,
+
+        opacity: 0.95
+
+    });
+
+
+
+
+
+/* ==========================================================
+   BLOOD PATHS — BASED ON ACTUAL HEART MESHES
+========================================================== */
+
+
+
+
+
+/* ==========================================================
+   BUILD A BLOOD-FLOW CURVE FROM MESH CENTRES
+========================================================== */
+
+function buildBloodFlowPath(meshNames) {
+
+    const points = [];
+
+    heartGroup.updateWorldMatrix(true, true);
+
+    meshNames.forEach(function (meshName) {
+
+        const worldPoint = getBloodFlowMeshPosition(meshName);
+
+        if (worldPoint) {
+
+            const localPoint = heartGroup.worldToLocal(
+                worldPoint.clone()
+            );
+
+            points.push(localPoint);
+        }
+
+    });
+
+    if (points.length < 2) {
+        console.warn(
+            "Not enough valid meshes to build blood-flow path."
+        );
+        return null;
+    }
+
+    return new THREE.CatmullRomCurve3(
+        points,
+        false,
+        "centripetal"
+    );
+}
+
+
+/* ==========================================================
+   BLUE: BODY → RIGHT HEART → LUNGS
+========================================================== */
+
+const blueFlowMeshNames = [
+    "Inferior_vena_cava_(abdominal_part)001",
+    "Inferior_vena_cava_(thoracic_part)001",
+    "Right_atrium001",
+    "Right_ventricle001",
+    "Pulmonary_trunk001",
+    "Right_pulmonary_artery001",
+    "Left_pulmonary_artery001"
+];
+
+
+/* ==========================================================
+   RED: LUNGS → LEFT HEART → BODY
+========================================================== */
+
+const redFlowMeshNames = [
+    "Left_superior_pulmonary_vein001",
+    "Left_inferior_pulmonary_vein001",
+    "Left_atrium001",
+    "Left_ventricle001",
+    "Ascending_aorta001",
+    "Aortic_arch001"
+];
+
+
+/* ==========================================================
+   PATH VARIABLES
+========================================================== */
+
+let blueBloodPath = null;
+let redBloodPath = null;
+let stage6BloodPath = null;
+
+/* ==========================================================
+   BUILD BLOOD PATHS AFTER HEART MODEL IS READY
+   Run inside the GLTFLoader success callback.
+========================================================== */
+
+heartGroup.updateWorldMatrix(true, true);
+logStage6Meshes();
+blueBloodPath = buildBloodFlowPath(blueFlowMeshNames);
+redBloodPath = buildBloodFlowPath(redFlowMeshNames);
+
+// Use the matching Stage 6 function name.
+stage6BloodPath = buildStage6Path();
+
+
+/* ==========================================================
+   REPORT BLOOD-FLOW PATH STATUS
+========================================================== */
+
+console.log(
+    "Blue blood path:",
+    blueBloodPath
+        ? blueBloodPath.points.length + " points"
+        : "FAILED"
+);
+
+console.log(
+    "Red blood path:",
+    redBloodPath
+        ? redBloodPath.points.length + " points"
+        : "FAILED"
+);
+
+console.log(
+    "Stage 6 path:",
+    stage6BloodPath
+        ? stage6BloodPath.points.length + " points"
+        : "FAILED"
+);
+
+
+/* ==========================================================
+   BLOOD FLOW — STAGE PATHS
+========================================================== */
+
+// Blue path: vena cava → right heart → pulmonary arteries.
+// Red path: pulmonary veins → left heart → aorta.
+
+const bloodFlowStages = {
+    all: {
+        color: "both",
+        start: 0,
+        end: 1,
+        description: "Showing both blood-flow paths."
+    },
+
+    
+    blue1: {
+       color: "blue",
+       start: 0.00,
+       end: 0.50,
+       description: "Stage 1: Blood flows through the venae cavae into the right atrium."
+    },
+
+
+    
+    blue2: {
+       color: "blue",
+       start: 0.34,
+       end: 0.50,
+       description: "Stage 2: Blood passes from the right atrium through the tricuspid valve into the right ventricle."
+    },
+
+
+    blue3: {
+        color: "blue",
+        start: 0.40,
+        end: 1.00,
+        description: "Stage 3: Blood travels from the right ventricle toward the pulmonary arteries."
+    },
+
+    red1: {
+        color: "red",
+        start: 0.00,
+        end: 0.40,
+        description: "Stage 4: Blood returns from the lungs through the pulmonary veins to the left atrium."
+    },
+
+    red2: {
+        color: "red",
+        start: 0.20,
+        end: 0.60,
+        description: "Stage 5: Blood moves from the left atrium toward the left ventricle."
+    },
+
+    
+    red3: {
+       color: "red",
+       start: 0.60,
+       end: 1.00,
+       description: "Stage 6: Oxygen-rich blood leaves the left ventricle, passes through the aortic valve, and enters the aorta."
+    },
+
+};
+
+
+// Return the selected stage configuration
+function getActiveBloodFlowStage() {
+    return bloodFlowStages[activeBloodFlowStage]
+        || bloodFlowStages.all;
+}
+
+
+/* ==========================================================
+   BLOOD FLOW STAGE SELECTOR
+========================================================== */
+
+// Use the existing bloodFlowStage declaration.
+// Declare bloodFlowStageInfo only once in the script.
+
+const bloodFlowStageInfo =
+    document.getElementById("bloodFlowStageInfo");
+
+
+if (bloodFlowStage && bloodFlowStageInfo) {
+
+    // Initialize from the dropdown's current selection
+    activeBloodFlowStage = bloodFlowStage.value;
+
+    bloodFlowStageInfo.textContent =
+        getActiveBloodFlowStage().description;
+
+    // Update the selected stage
+    bloodFlowStage.addEventListener("change", function () {
+
+        activeBloodFlowStage = this.value;
+
+        bloodFlowStageInfo.textContent =
+            getActiveBloodFlowStage().description;
+
+        // Restart particle positions for the selected stage
+        bloodFlowTime = 0;
+    });
+}
+
+
+
+
+/* ==========================================================
+   CREATE BLUE BLOOD PARTICLES WITH DIRECTIONAL ARROWHEADS
+========================================================== */
+
+const blueBloodParticles = [];
+
+for (let i = 0; i < 35; i++) {
+
+    const particleGroup = new THREE.Group();
+
+    // Blue blood particle
+    const particle = new THREE.Mesh(
+        new THREE.SphereGeometry(0.008, 8, 8),
+        blueBloodMaterial
+    );
+
+    particle.userData.offset = i / 35;
+
+    particleGroup.add(particle);
+
+    // Arrowhead pointing along the local +Y direction
+    const arrowhead = new THREE.Mesh(
+        new THREE.ConeGeometry(0.006, 0.018, 8),
+        blueBloodMaterial
+    );
+
+    arrowhead.position.y = 0.014;
+    arrowhead.rotation.x = Math.PI / 2;
+
+    particleGroup.add(arrowhead);
+
+    particleGroup.userData.offset = i / 35;
+
+    blueBloodGroup.add(particleGroup);
+
+    blueBloodParticles.push(particleGroup);
+}
+
+
+/* ==========================================================
+   CREATE RED BLOOD PARTICLES WITH DIRECTIONAL ARROWHEADS
+========================================================== */
+
+const redBloodParticles = [];
+
+for (let i = 0; i < 35; i++) {
+
+    const particleGroup = new THREE.Group();
+
+    // Red blood particle
+    const particle = new THREE.Mesh(
+        new THREE.SphereGeometry(0.008, 8, 8),
+        redBloodMaterial
+    );
+
+    particle.userData.offset = i / 35;
+
+    particleGroup.add(particle);
+
+    // Arrowhead pointing along the local +Y direction
+    const arrowhead = new THREE.Mesh(
+        new THREE.ConeGeometry(0.006, 0.018, 8),
+        redBloodMaterial
+    );
+
+    arrowhead.position.y = 0.014;
+    arrowhead.rotation.x = Math.PI / 2;
+
+    particleGroup.add(arrowhead);
+
+    particleGroup.userData.offset = i / 35;
+
+    redBloodGroup.add(particleGroup);
+
+    redBloodParticles.push(particleGroup);
+}
+
+
+/* ==========================================================
+   BLOOD PARTICLE TIME
+========================================================== */
+
+let bloodFlowTime =
+    0;
+
+
+
+
+
+
+
+
+/* ==========================================================
+   UPDATE BLUE BLOOD — STAGE CONTROL
+========================================================== */
+
+function updateBlueBlood(delta) {
+
+    const stage = getActiveBloodFlowStage();
+
+    // Hide blue particles when flow is stopped,
+    // the path is unavailable, or a red stage is selected.
+    if (
+        !bloodFlowVisible ||
+        !blueBloodPath ||
+        !blueBloodGroup ||
+        stage.color === "red"
+    ) {
+        if (blueBloodGroup) {
+            blueBloodGroup.visible = false;
+        }
+        return;
+    }
+
+    blueBloodGroup.visible = true;
+
+    blueBloodParticles.forEach(function (particle) {
+
+        const rawT = (
+            bloodFlowTime * 0.12 +
+            particle.userData.offset
+        ) % 1;
+
+        let t = rawT;
+
+        // Restrict particles to the selected blue stage.
+        if (stage.color === "blue") {
+            t = stage.start +
+                rawT * (stage.end - stage.start);
+        }
+
+        // Keep the curve parameter within its valid range.
+        t = THREE.MathUtils.clamp(t, 0, 1);
+
+        const position = blueBloodPath.getPointAt(t);
+        particle.position.copy(position);
+
+        const tangent = blueBloodPath
+            .getTangentAt(t)
+            .normalize();
+
+        particle.quaternion.setFromUnitVectors(
+            new THREE.Vector3(0, 1, 0),
+            tangent
+        );
+    });
+}
+
+
+
+
+
+
+
+/* ==========================================================
+   UPDATE RED BLOOD — STAGE CONTROL
+========================================================== */
+
+function updateRedBlood(delta) {
+
+    const stage = getActiveBloodFlowStage();
+
+    // Hide red particles if flow is unavailable or a blue
+    // stage is selected.
+    if (
+        !bloodFlowVisible ||
+        !redBloodGroup ||
+        !redBloodPath ||
+        stage.color === "blue"
+    ) {
+        if (redBloodGroup) {
+            redBloodGroup.visible = false;
+        }
+        return;
+    }
+
+    // Stage 6 requires its own dedicated path.
+    if (
+        activeBloodFlowStage === "red3" &&
+        !stage6BloodPath
+    ) {
+        redBloodGroup.visible = false;
+
+        console.warn(
+            "Stage 6 path is missing. Check buildStage6Path()."
+        );
+
+        return;
+    }
+
+    redBloodGroup.visible = true;
+
+    // Select the correct path for the selected stage.
+    const activePath =
+        activeBloodFlowStage === "red3"
+            ? stage6BloodPath
+            : redBloodPath;
+
+    redBloodParticles.forEach(function (particle) {
+
+        const rawT = (
+            bloodFlowTime * 0.12 +
+            particle.userData.offset
+        ) % 1;
+
+        let t = rawT;
+
+        if (activeBloodFlowStage === "red1") {
+
+            // Stage 4: Pulmonary veins → left atrium
+            t = rawT * 0.40;
+
+        } else if (activeBloodFlowStage === "red2") {
+
+            // Stage 5: Left atrium → left ventricle
+            t = 0.25 + rawT * 0.35;
+
+        } else if (activeBloodFlowStage === "red3") {
+
+            // Stage 6: Left ventricle → ascending aorta
+            // → aortic arch, using the dedicated path.
+            t = rawT;
+
+        } else {
+
+            // Complete red circulation path.
+            t = rawT;
+        }
+
+        t = THREE.MathUtils.clamp(t, 0, 1);
+
+        const position = activePath.getPointAt(t);
+        particle.position.copy(position);
+
+        const tangent = activePath
+            .getTangentAt(t)
+            .normalize();
+
+        particle.quaternion.setFromUnitVectors(
+            new THREE.Vector3(0, 1, 0),
+            tangent
+        );
+    });
+}
+
+
+
+/* ==========================================================
+   BLOOD FLOW BUTTON
+========================================================== */
+
+const bloodFlowBtn =
+    document.getElementById(
+        "bloodFlowBtn"
+    );
+
+
+if (
+    bloodFlowBtn
+) {
+
+    bloodFlowBtn.addEventListener(
+
+        "click",
+
+        function () {
+
+            bloodFlowVisible =
+                !bloodFlowVisible;
+
+
+            this.innerHTML =
+                bloodFlowVisible
+
+                ?
+
+                '<span class="offline-icon" aria-hidden="true">●</span> Hide Blood Flow'
+
+                :
+
+                '<span class="offline-icon" aria-hidden="true">●</span> Show Blood Flow';
+
+        }
+
+    );
+
+}
+
+
+
+/* ==========================================================
+   BLOOD FLOW SIMULATION CONTROLS
+========================================================== */
+
+const startBloodFlowBtn =
+    document.getElementById("startBloodFlowBtn");
+
+const pauseBloodFlowBtn =
+    document.getElementById("pauseBloodFlowBtn");
+
+const resetBloodFlowBtn =
+    document.getElementById("resetBloodFlowBtn");
+
+const bloodFlowStatus =
+    document.getElementById("bloodFlowStatus");
+
+
+/* ----------------------------------------------------------
+   START BLOOD FLOW
+---------------------------------------------------------- */
+
+if (startBloodFlowBtn) {
+    startBloodFlowBtn.addEventListener("click", function () {
+
+        bloodFlowVisible = true;
+        bloodFlowPaused = false;
+
+        if (bloodFlowBtn) {
+            bloodFlowBtn.innerHTML =
+                '<span class="offline-icon" aria-hidden="true">●</span> Hide Blood Flow';
+        }
+
+        if (bloodFlowStatus) {
+            bloodFlowStatus.textContent =
+                "Blood is flowing through the heart";
+        }
+    });
+}
+
+
+/* ----------------------------------------------------------
+   PAUSE BLOOD FLOW
+---------------------------------------------------------- */
+
+if (pauseBloodFlowBtn) {
+    pauseBloodFlowBtn.addEventListener("click", function () {
+
+        bloodFlowPaused = true;
+
+        if (bloodFlowStatus) {
+            bloodFlowStatus.textContent =
+                bloodFlowVisible
+                    ? "Blood flow paused"
+                    : "Blood flow is hidden";
+        }
+    });
+}
+
+
+
+/* ----------------------------------------------------------
+   RESET BLOOD FLOW
+---------------------------------------------------------- */
+
+if (resetBloodFlowBtn) {
+    resetBloodFlowBtn.addEventListener("click", function () {
+
+        bloodFlowTime = 0;
+        bloodFlowPaused = true;
+        bloodFlowVisible = true;
+
+        if (bloodFlowBtn) {
+            bloodFlowBtn.innerHTML =
+                '<span class="offline-icon" aria-hidden="true">●</span> Hide Blood Flow';
+        }
+
+        if (bloodFlowStatus) {
+            bloodFlowStatus.textContent =
+                "Flow reset — ready to start";
+        }
+
+        /* Show particle groups */
+
+        blueBloodGroup.visible = !!blueBloodPath;
+        redBloodGroup.visible = !!redBloodPath;
+
+        /* Reset blue particles */
+
+        if (blueBloodPath) {
+            blueBloodParticles.forEach(function (particle) {
+
+                const position = blueBloodPath.getPointAt(
+                    particle.userData.offset
+                );
+
+                blueBloodGroup.worldToLocal(position);
+                particle.position.copy(position);
+            });
+        }
+
+        /* Reset red particles */
+
+        if (redBloodPath) {
+            redBloodParticles.forEach(function (particle) {
+
+                const position = redBloodPath.getPointAt(
+                    particle.userData.offset
+                );
+
+                redBloodGroup.worldToLocal(position);
+                particle.position.copy(position);
+            });
+        }
+    });
+}
+
+
+
+/* ==========================================================
+   ANATOMY DATABASE
+========================================================== */
+
+const anatomyData = {
+
+
+    heart: {
+
+        name:
+            "Human Heart",
+
+        description:
+            "A muscular organ that pumps blood throughout the pulmonary and systemic circulatory systems.",
+
+        function:
+            "Maintains continuous blood circulation.",
+
+        facts:
+            "Four chambers: two atria and two ventricles."
+
+    },
+
+
+    aorta: {
+
+        name:
+            "Aorta",
+
+        description:
+            "The largest artery in the human body. It carries oxygenated blood from the left ventricle to the systemic circulation.",
+
+        function:
+            "Distributes oxygen-rich blood throughout the body.",
+
+        facts:
+            "Oxygenated blood • Direction: Left ventricle → Body."
+
+    },
+
+
+    superiorVenaCava: {
+
+        name:
+            "Superior Vena Cava",
+
+        description:
+            "A large vein that returns deoxygenated blood from the upper body to the right atrium.",
+
+        function:
+            "Returns deoxygenated blood from the upper body.",
+
+        facts:
+            "Deoxygenated blood • Upper body → Right atrium."
+
+    },
+
+
+    inferiorVenaCava: {
+
+        name:
+            "Inferior Vena Cava",
+
+        description:
+            "A large vein that returns deoxygenated blood from the lower body to the right atrium.",
+
+        function:
+            "Returns blood from the lower body.",
+
+        facts:
+            "Deoxygenated blood • Lower body → Right atrium."
+
+    },
+
+
+    pulmonaryArtery: {
+
+        name:
+            "Pulmonary Artery",
+
+        description:
+            "Carries deoxygenated blood from the right ventricle toward the lungs.",
+
+        function:
+            "Transports deoxygenated blood to the lungs.",
+
+        facts:
+            "Deoxygenated blood • Right ventricle → Lungs."
+
+    },
+
+
+    pulmonaryVeins: {
+
+        name:
+            "Pulmonary Veins",
+
+        description:
+            "Return oxygenated blood from the lungs to the left atrium.",
+
+        function:
+            "Transport oxygen-rich blood from the lungs to the heart.",
+
+        facts:
+            "Oxygenated blood • Lungs → Left atrium."
+
+    },
+
+
+    rightAtrium: {
+
+        name:
+            "Right Atrium",
+
+        description:
+            "The upper-right chamber that receives deoxygenated blood from the venae cavae.",
+
+        function:
+            "Receives deoxygenated blood returning from the body.",
+
+        facts:
+            "Receives blood from the superior and inferior vena cava."
+
+    },
+
+
+    rightVentricle: {
+
+        name:
+            "Right Ventricle",
+
+        description:
+            "The lower-right chamber that pumps deoxygenated blood toward the lungs.",
+
+        function:
+            "Pumps blood into the pulmonary artery.",
+
+        facts:
+            "Deoxygenated blood • Pulmonary circulation."
+
+    },
+
+
+    leftAtrium: {
+
+        name:
+            "Left Atrium",
+
+        description:
+            "The upper-left chamber that receives oxygenated blood from the lungs.",
+
+        function:
+            "Receives oxygen-rich blood from the pulmonary veins.",
+
+        facts:
+            "Oxygenated blood • Lungs → Left ventricle."
+
+    },
+
+
+    leftVentricle: {
+
+        name:
+            "Left Ventricle",
+
+        description:
+            "The strongest chamber of the heart. It pumps oxygenated blood into the aorta.",
+
+        function:
+            "Pumps oxygenated blood throughout the body.",
+
+        facts:
+            "Has the thickest muscular wall of the four chambers."
+
+    },
+
+
+    tricuspidValve: {
+
+        name:
+            "Tricuspid Valve",
+
+        description:
+            "A three-leaflet valve between the right atrium and right ventricle.",
+
+        function:
+            "Prevents blood from flowing backward into the right atrium.",
+
+        facts:
+            "Right atrium → Right ventricle."
+
+    },
+
+
+    mitralValve: {
+
+        name:
+            "Mitral Valve",
+
+        description:
+            "A two-leaflet valve between the left atrium and left ventricle.",
+
+        function:
+            "Prevents blood from flowing backward into the left atrium.",
+
+        facts:
+            "Also called the bicuspid valve."
+
+    },
+
+
+    aorticValve: {
+
+        name:
+            "Aortic Valve",
+
+        description:
+            "A valve between the left ventricle and the aorta.",
+
+        function:
+            "Prevents blood from returning to the left ventricle.",
+
+        facts:
+            "Opens during ventricular systole."
+
+    },
+
+
+    pulmonaryValve: {
+
+        name:
+            "Pulmonary Valve",
+
+        description:
+            "A valve between the right ventricle and pulmonary artery.",
+
+        function:
+            "Prevents blood from flowing back into the right ventricle.",
+
+        facts:
+            "Opens when the right ventricle contracts."
+
+    }
+
+};
+
+
+
+/* ==========================================================
+   SHOW ANATOMY
+========================================================== */
+
+function showAnatomy(
+    structure
+) {
+
+
+    const data =
+        anatomyData[
+            structure
+        ];
+
+
+    if (
+        !data
+    ) {
+
+        console.warn(
+            "Unknown anatomy structure:",
+            structure
+        );
+
+        return;
+
+    }
+
+
+    const nameElement =
+        document.getElementById(
+            "anatomyName"
+        );
+
+
+    const descriptionElement =
+        document.getElementById(
+            "anatomyDescription"
+        );
+
+
+    const functionElement =
+        document.getElementById(
+            "anatomyFunction"
+        );
+
+
+    const factsElement =
+        document.getElementById(
+            "anatomyFacts"
+        );
+
+
+    if (
+        nameElement
+    ) {
+
+        nameElement.textContent =
+            data.name;
+
+    }
+
+
+    if (
+        descriptionElement
+    ) {
+
+        descriptionElement.textContent =
+            data.description;
+
+    }
+
+
+    if (
+        functionElement
+    ) {
+
+        functionElement.textContent =
+            data.function;
+
+    }
+
+
+    if (
+        factsElement
+    ) {
+
+        factsElement.textContent =
+            data.facts;
+
+    }
+
+
+    console.log(
+        "📚 Anatomy:",
+        data.name
+    );
+
+}
+
+/* ==========================================================
+   ANATOMY EXPLORER BUTTONS
+========================================================== */
+
+const anatomyButtons =
+    document.querySelectorAll(
+        ".anatomy-btn"
+    );
+
+
+anatomyButtons.forEach(
+    function (button) {
+
+        button.addEventListener(
+            "click",
+            function () {
+
+                const structure =
+                    this.dataset.structure;
+
+
+                console.log(
+                    "🫀 ANATOMY BUTTON:",
+                    structure
+                );
+
+
+                /* Show existing anatomy information */
+
+                showAnatomy(
+                    structure
+                );
+
+                setAnatomyHighlight(
+                    structure
+                );
+
+                /* Active button */
+
+                anatomyButtons.forEach(
+                    function (item) {
+
+                        item.classList.remove(
+                            "active"
+                        );
+
+                    }
+                );
+
+
+                this.classList.add(
+                    "active"
+                );
+
+            }
+        );
+
+    }
+);
+
+/* ==========================================================
+   ANATOMY RAYCASTING
+========================================================== */
+
+const raycaster =
+    new THREE.Raycaster();
+
+
+const mouse =
+    new THREE.Vector2();
+
+
+
+/* ==========================================================
+   ANATOMICAL HOTSPOT SYSTEM
+========================================================== */
+
+const hotspotObjects = [];
+
+
+/* ==========================================================
+   CREATE ANATOMICAL HOTSPOT
+========================================================== */
+
+function createAnatomyHotspot({
+
+    structure,
+
+    position,
+
+    radius = 0.25,
+
+    color = 0x00ffff,
+
+    opacity = 0
+
+}) {
+
+    const hotspot =
+
+        new THREE.Mesh(
+
+            new THREE.SphereGeometry(
+
+                radius,
+
+                16,
+
+                16
+
+            ),
+
+            new THREE.MeshBasicMaterial({
+
+                color:
+                    color,
+
+                transparent:
+                    true,
+
+                opacity:
+                    opacity,
+
+                depthWrite:
+                    false,
+
+                depthTest:
+                    false
+
+            })
+
+        );
+
+/* ==========================================================
+   ANATOMY SELECTION HIGHLIGHT
+========================================================== */
+
+let activeAnatomyHighlight = null;
+
+
+function highlightAnatomyStructure(
+    structure
+) {
+
+    
+    /* ----------------------------------------------
+       REMOVE PREVIOUS HIGHLIGHT
+    ---------------------------------------------- */
+
+    if (
+        activeAnatomyHighlight
+    ) {
+
+        heartGroup.remove(
+            activeAnatomyHighlight
+        );
+
+        activeAnatomyHighlight
+            .geometry.dispose();
+
+        activeAnatomyHighlight
+            .material.dispose();
+
+        activeAnatomyHighlight =
+            null;
+
+    }
+
+
+    /* ----------------------------------------------
+       HIGHLIGHT SETTINGS
+    ---------------------------------------------- */
+
+    let position;
+    let color;
+
+
+    if (
+        structure ===
+        "aorta"
+    ) {
+
+        position =
+            new THREE.Vector3(
+                -0.04,
+                2.12,
+                0.35
+            );
+
+        color =
+            0xff4444;
+
+    }
+
+
+    else if (
+        structure ===
+        "superiorVenaCava"
+    ) {
+
+        position =
+            new THREE.Vector3(
+                -0.10,
+                2.25,
+                0.25
+            );
+
+        color =
+            0x00ffff;
+
+    }
+
+
+    else {
+
+        return;
+
+    }
+
+
+    /* ----------------------------------------------
+       CREATE HIGHLIGHT
+    ---------------------------------------------- */
+
+    const highlight =
+        new THREE.Mesh(
+
+            new THREE.SphereGeometry(
+                0.20,
+                24,
+                24
+            ),
+
+            new THREE.MeshBasicMaterial({
+
+                color:
+                    color,
+
+                transparent:
+                    true,
+
+                opacity:
+                    0.35,
+
+                depthWrite:
+                    false,
+
+                depthTest:
+                    false
+
+            })
+
+        );
+
+
+    highlight.position.copy(
+        position
+    );
+
+
+    heartGroup.add(
+        highlight
+    );
+
+
+    activeAnatomyHighlight =
+        highlight;
+
+
+    /* ----------------------------------------------
+       FADE OUT
+    ---------------------------------------------- */
+
+    let opacity =
+        0.35;
+
+
+    const fadeInterval =
+        setInterval(
+
+            function () {
+
+                opacity -=
+                    0.025;
+
+
+                if (
+                    opacity <= 0
+                ) {
+
+                    clearInterval(
+                        fadeInterval
+                    );
+
+
+                    if (
+                        activeAnatomyHighlight ===
+                        highlight
+                    ) {
+
+                        heartGroup.remove(
+                            highlight
+                        );
+
+                        highlight.geometry
+                            .dispose();
+
+                        highlight.material
+                            .dispose();
+
+                        activeAnatomyHighlight =
+                            null;
+
+                    }
+
+                    return;
+
+                }
+
+
+                highlight.material.opacity =
+                    opacity;
+
+            },
+
+            50
+
+        );
+
+}
+
+    /* ------------------------------------------------------
+       HOTSPOT POSITION
+    ------------------------------------------------------ */
+
+    hotspot.position.set(
+
+        position.x,
+
+        position.y,
+
+        position.z
+
+    );
+
+
+    /* ------------------------------------------------------
+       IDENTIFY ANATOMICAL STRUCTURE
+    ------------------------------------------------------ */
+
+    hotspot.userData.structure =
+        structure;
+
+
+    /* ------------------------------------------------------
+       ADD TO HEART GROUP
+    ------------------------------------------------------ */
+
+    heartGroup.add(
+
+        hotspot
+
+    );
+
+
+    /* ------------------------------------------------------
+       REGISTER HOTSPOT
+    ------------------------------------------------------ */
+
+    hotspotObjects.push(
+
+        hotspot
+
+    );
+
+
+    return hotspot;
+
+}
+
+
+/* ==========================================================
+   AORTA HOTSPOT — INVISIBLE CLICK ZONE
+========================================================== */
+
+createAnatomyHotspot({
+
+    structure:
+        "aorta",
+
+    position: {
+
+        x: -0.04,
+        y: 2.12,
+        z: 0.35
+
+    },
+
+    radius: 0.22,
+
+    color: 0xff4444,
+
+    opacity: 0
+
+});
+
+/* ==========================================================
+   AORTA SELECTION HIGHLIGHT
+========================================================== */
+
+const aortaHighlight =
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            0.16,
+            24,
+            16
+        ),
+
+        new THREE.MeshBasicMaterial({
+
+            color: 0xff3333,
+
+            transparent: true,
+
+            opacity: 0.65,
+
+            wireframe: true,
+
+            depthTest: false,
+
+            depthWrite: false
+
+        })
+
+    );
+
+
+aortaHighlight.position.set(
+    0.42,
+    1.88,
+    0.35
+);
+
+
+aortaHighlight.visible = false;
+
+
+heartGroup.add(
+    aortaHighlight
+);
+
+/* ==========================================================
+   ANATOMY SELECTION HIGHLIGHT SYSTEM
+========================================================== */
+
+const anatomyHighlightPositions = {
+
+    aorta: {
+        x: 0.42,
+        y: 1.88,
+        z: 0.35,
+        radius: 0.16
+    },
+
+    superiorVenaCava: {
+        x: -0.08,
+        y: 1.98,
+        z: 0.3,
+        radius: 0.16
+    },
+
+    rightAtrium: {
+        x: -0.22,
+        y: 1.62,
+        z: 0.32,
+        radius: 0.18
+    },
+
+    rightVentricle: {
+        x: -0.05,
+        y: 1.05,
+        z: 0.34,
+        radius: 0.19
+    },
+
+    leftAtrium: {
+        x: 0.58,
+        y: 1.42,
+        z: 0.28,
+        radius: 0.18
+    },
+
+    leftVentricle: {
+        x: 0.58,
+        y: 0.86,
+        z: 0.34,
+        radius: 0.18
+    },
+
+    pulmonaryArtery: {
+        x: 0.43,
+        y: 1.58,
+        z: 0.42,
+        radius: 0.16
+    },
+
+    pulmonaryVeins: {
+        x: 1.08,
+        y: 1.76,
+        z: 0.20,
+        radius: 0.14
+    },
+
+    tricuspidValve: {
+        x: -0.30,
+        y: 1.42,
+        z: 0.32,
+        radius: 0.13
+    },
+
+    mitralValve: {
+        x: 0.30,
+        y: 1.40,
+        z: 0.32,
+        radius: 0.16
+    },
+
+    aorticValve: {
+        x: 0.08,
+        y: 1.52,
+        z: 0.38,
+        radius: 0.15
+    },
+
+    pulmonaryValve: {
+        x: -0.12,
+        y: 1.62,
+        z: 0.38,
+        radius: 0.15
+    }
+
+};
+
+
+function setAnatomyHighlight(
+    structure
+) {
+
+    const target =
+        anatomyHighlightPositions[
+            structure
+        ];
+
+
+    if (!target) {
+
+        aortaHighlight.visible =
+            false;
+
+        return;
+
+    }
+
+
+    aortaHighlight.position.set(
+
+        target.x,
+        target.y,
+        target.z
+
+    );
+
+
+    const scale =
+        target.radius / 0.16;
+
+
+    aortaHighlight.scale.set(
+
+        scale,
+        scale,
+        scale
+
+    );
+
+
+    aortaHighlight.visible =
+        true;
+
+
+    console.log(
+        "🔴 HIGHLIGHT:",
+        structure
+    );
+
+}
+
+/* ==========================================================
+   SUPERIOR VENA CAVA HOTSPOT — INVISIBLE CLICK ZONE
+========================================================== */
+
+createAnatomyHotspot({
+
+    structure:
+        "superiorVenaCava",
+
+    position: {
+
+        x: -0.10,
+        y: 2.25,
+        z: 0.25
+
+    },
+
+    radius: 0.20,
+
+    color: 0x00ffff,
+
+    opacity: 0
+
+});
+
+/* ==========================================================
+   RIGHT ATRIUM HOTSPOT — INVISIBLE CLICK ZONE
+========================================================== */
+
+createAnatomyHotspot({
+
+    structure:
+        "rightAtrium",
+
+    position: {
+
+        x: -0.42,
+        y: 1.72,
+        z: 0.28
+
+    },
+
+    radius: 0.24,
+
+    color: 0xffcc00,
+
+    opacity: 0
+
+});
+
+/* ==========================================================
+   RIGHT VENTRICLE HOTSPOT — INVISIBLE CLICK ZONE
+========================================================== */
+
+createAnatomyHotspot({
+
+    structure:
+        "rightVentricle",
+
+    position: {
+
+        x: -0.38,
+        y: 1.25,
+        z: 0.28
+
+    },
+
+    radius: 0.30,
+
+    color: 0xffcc00,
+
+    opacity: 0
+
+});
+
+/* ==========================================================
+   LEFT ATRIUM HOTSPOT — INVISIBLE CLICK ZONE
+========================================================== */
+
+createAnatomyHotspot({
+
+    structure:
+        "leftAtrium",
+
+    position: {
+
+        x: 0.68,
+        y: 1.52,
+        z: 0.18
+
+    },
+
+    radius: 0.24,
+
+    color: 0xffcc00,
+
+    opacity: 0
+
+});
+
+/* ==========================================================
+   LEFT VENTRICLE HOTSPOT — INVISIBLE CLICK ZONE
+========================================================== */
+
+createAnatomyHotspot({
+
+    structure:
+        "leftVentricle",
+
+    position: {
+
+        x: 0.42,
+        y: 1.15,
+        z: 0.28
+
+    },
+
+    radius: 0.30,
+
+    color: 0xffcc00,
+
+    opacity: 0
+
+});
+
+/* ==========================================================
+   PULMONARY ARTERY HOTSPOT — INVISIBLE CLICK ZONE
+========================================================== */
+
+createAnatomyHotspot({
+    structure:"pulmonaryArtery",
+    position:{x:0.75,y:1.15,z:0.55},
+    radius:0.22,
+    color:0xffcc00,
+    opacity:0
+});
+
+/* ==========================================================
+   PULMONARY VEINS HOTSPOT — INVISIBLE CLICK ZONE
+========================================================== */
+
+createAnatomyHotspot({
+
+    structure:
+        "pulmonaryVeins",
+
+    position: {
+
+        x: 0.62,
+        y: 1.72,
+        z: 0.20
+
+    },
+
+    radius: 0.24,
+
+    color: 0xffcc00,
+
+    opacity: 0
+
+});
+
+/* ==========================================================
+   TRICUSPID VALVE HOTSPOT — INVISIBLE CLICK ZONE
+========================================================== */
+
+createHeartAttachedHotspot({
+
+    structure:
+        "tricuspidValve",
+
+    position:
+        new THREE.Vector3(
+            -0.05,
+            1.28,
+            0.42
+        ),
+
+    radius: 0.13,
+
+    color: 0xffcc00
+
+});
+
+/* ==========================================================
+   MITRAL VALVE HOTSPOT — INVISIBLE CLICK ZONE
+========================================================== */
+
+createAnatomyHotspot({
+
+    structure:
+        "mitralValve",
+
+    position: {
+
+        x: 0.30,
+        y: 1.40,
+        z: 0.32
+
+    },
+
+    radius: 0.16,
+
+    color: 0xffcc00,
+
+    opacity: 0
+
+});
+
+/* ==========================================================
+   AORTIC VALVE HOTSPOT — INVISIBLE CLICK ZONE
+========================================================== */
+
+createAnatomyHotspot({
+
+    structure:
+        "aorticValve",
+
+    position: {
+
+        x: 0.08,
+        y: 1.52,
+        z: 0.38
+
+    },
+
+    radius: 0.15,
+
+    color: 0xffcc00,
+
+    opacity: 0
+
+});
+
+/* ==========================================================
+   PULMONARY VALVE HOTSPOT — INVISIBLE CLICK ZONE
+========================================================== */
+
+createAnatomyHotspot({
+
+    structure:
+        "pulmonaryValve",
+
+    position: {
+
+        x: -0.12,
+        y: 1.62,
+        z: 0.38
+
+    },
+
+    radius: 0.15,
+
+    color: 0xffcc00,
+
+    opacity: 0
+
+});
+
+/* ==========================================================
+   CLICK ON ANATOMICAL HOTSPOTS
+========================================================== */
+
+canvas.addEventListener(
+
+    "click",
+
+    function (event) {
+
+
+        console.log(
+            "🖱️ Canvas clicked"
+        );
+
+
+        const rect =
+            canvas.getBoundingClientRect();
+
+
+        mouse.x =
+            (
+                (
+                    event.clientX -
+                    rect.left
+                ) /
+                rect.width
+            ) *
+            2 -
+            1;
+
+
+        mouse.y =
+            -(
+                (
+                    event.clientY -
+                    rect.top
+                ) /
+                rect.height
+            ) *
+            2 +
+            1;
+
+
+        raycaster.setFromCamera(
+
+            mouse,
+
+            camera
+
+        );
+
+
+        const intersects =
+            raycaster.intersectObjects(
+
+                hotspotObjects,
+
+                true
+
+            );
+
+
+        console.log(
+
+            "Hotspot intersections:",
+
+            intersects.length
+
+        );
+
+
+        if (
+            intersects.length > 0
+        ) {
+
+
+            const selectedObject =
+                intersects[0].object;
+
+
+            const structure =
+                selectedObject
+                    .userData
+                    .structure;
+
+
+            console.log(
+
+                "❤️ SELECTED:",
+
+                structure
+
+            );
+
+
+            showAnatomy(
+                structure
+            );
+
+        }
+
+
+    }
+
+);
+
+/* ==========================================================
+   CREATE HEART-ATTACHED ANATOMY HOTSPOT
+========================================================== */
+
+function createHeartAttachedHotspot({
+    structure,
+    position,
+    radius = 0.15,
+    color = 0xffcc00
+}) {
+
+    if (
+        !heartModel ||
+        !anatomyHotspotGroup
+    ) {
+
+        console.warn(
+            "⚠️ Heart model or hotspot group not ready:",
+            structure
+        );
+
+        return null;
+    }
+
+
+    const hotspot =
+        new THREE.Mesh(
+
+            new THREE.SphereGeometry(
+                radius,
+                16,
+                16
+            ),
+
+            new THREE.MeshBasicMaterial({
+
+                color: color,
+
+                transparent: true,
+
+                opacity: 0,
+
+                depthWrite: false,
+
+                depthTest: false
+
+            })
+
+        );
+
+
+    /*
+       Existing calibrated coordinates are currently
+       expressed relative to heartGroup.
+    */
+
+    const worldPosition =
+        position.clone();
+
+
+    heartGroup.localToWorld(
+        worldPosition
+    );
+
+
+    /*
+       Convert that world position into
+       heartModel's local coordinate system.
+    */
+
+    heartModel.updateMatrixWorld(
+        true
+    );
+
+
+    const localPosition =
+        heartModel.worldToLocal(
+            worldPosition
+        );
+
+
+    hotspot.position.copy(
+        localPosition
+    );
+
+
+    hotspot.userData.structure =
+        structure;
+
+
+    anatomyHotspotGroup.add(
+        hotspot
+    );
+
+
+    console.log(
+        "🫀 Attached hotspot:",
+        structure
+    );
+
+
+    return hotspot;
+}
+
+/* ==========================================================
+   X-RAY MODE
+========================================================== */
+
+let xrayMode =
+    false;
+
+
+const xrayBtn =
+    document.getElementById(
+        "xrayBtn"
+    );
+
+
+if (
+    xrayBtn
+) {
+
+    xrayBtn.addEventListener(
+
+        "click",
+
+        function () {
+
+
+            xrayMode =
+                !xrayMode;
+
+
+            if (
+                heartModel
+            ) {
+
+                heartModel.traverse(
+
+                    function (object) {
+
+
+                        if (
+                            object.isMesh &&
+                            object.material
+                        ) {
+
+
+                            const materials =
+                                Array.isArray(
+                                    object.material
+                                )
+
+                                ?
+
+                                object.material
+
+                                :
+
+                                [
+                                    object.material
+                                ];
+
+
+                            materials.forEach(
+
+                                function (
+                                    material
+                                ) {
+
+
+                                    material.transparent =
+                                        xrayMode;
+
+
+                                    material.opacity =
+                                        xrayMode
+
+                                        ? 0.28
+
+                                        : 1;
+
+
+                                    material.needsUpdate =
+                                        true;
+
+                                }
+
+                            );
+
+                        }
+
+                    }
+
+                );
+
+            }
+
+
+            this.innerHTML =
+                xrayMode
+
+                ?
+
+                '<i class="fa-solid fa-x-ray"></i> Normal Mode'
+
+                :
+
+                '<i class="fa-solid fa-x-ray"></i> X-Ray / Cutaway Mode';
+
+
+        }
+
+    );
+
+}
+
+
+
+/* ==========================================================
+   PAUSE / PLAY ROTATION
+========================================================== */
+
+const pauseRotation =
+    document.getElementById(
+        "pauseRotation"
+    );
+
+
+if (
+    pauseRotation
+) {
+
+    pauseRotation.addEventListener(
+
+        "click",
+
+        function () {
+
+
+            controls.autoRotate =
+                !controls.autoRotate;
+
+
+            this.innerHTML =
+                controls.autoRotate
+
+                ?
+
+                '<span class="offline-icon" aria-hidden="true">Ⅱ</span>'
+
+                :
+
+                '<span class="offline-icon" aria-hidden="true">▶</span>';
+
+        }
+
+    );
+
+}
+
+/* ==========================================================
+   PAUSE / PLAY HEARTBEAT
+========================================================== */
+
+const pauseHeartbeat =
+    document.getElementById(
+        "pauseHeartbeat"
+    );
+
+
+if (
+    pauseHeartbeat
+) {
+
+    pauseHeartbeat.addEventListener(
+
+        "click",
+
+        function () {
+
+            heartbeatEnabled =
+                !heartbeatEnabled;
+
+
+            /* ----------------------------------------------
+               PAUSE / RESUME GLB ANIMATION
+            ---------------------------------------------- */
+
+            if (
+                animationMixer
+            ) {
+
+                animationMixer.timeScale =
+                    heartbeatEnabled
+                        ? 1
+                        : 0;
+
+            }
+
+
+            /* ----------------------------------------------
+               RESET SIMULATED HEARTBEAT POSITION
+            ---------------------------------------------- */
+
+            if (
+                !heartbeatEnabled
+            ) {
+
+                heartbeatTime =
+                    0;
+
+                resetChamberMotion();
+
+            }
+
+
+            /* ----------------------------------------------
+               UPDATE BUTTON
+            ---------------------------------------------- */
+
+            this.innerHTML =
+                heartbeatEnabled
+
+                ?
+
+                '<span class="offline-icon" aria-hidden="true">♥</span>'
+
+                :
+
+                '<span class="offline-icon" aria-hidden="true">▶</span>';
+
+
+            this.title =
+                heartbeatEnabled
+
+                ?
+
+                "Pause Heartbeat"
+
+                :
+
+                "Play Heartbeat";
+
+        }
+
+    );
+
+}
+
+/* ==========================================================
+   RESET VIEW
+========================================================== */
+
+const resetView =
+    document.getElementById(
+        "resetView"
+    );
+
+
+if (
+    resetView
+) {
+
+    resetView.addEventListener(
+
+        "click",
+
+        function () {
+
+
+            camera.position.set(
+
+                0,
+
+                0,
+
+                4.8
+
+            );
+
+
+            controls.target.set(
+
+                0,
+
+                0,
+
+                0
+
+            );
+
+
+            controls.update();
+
+        }
+
+    );
+
+}
+
+
+
+/* ==========================================================
+   ZOOM IN
+========================================================== */
+
+const zoomIn =
+    document.getElementById(
+        "zoomIn"
+    );
+
+
+if (
+    zoomIn
+) {
+
+    zoomIn.addEventListener(
+
+        "click",
+
+        function () {
+
+
+            camera.position.multiplyScalar(
+                0.85
+            );
+
+
+        }
+
+    );
+
+}
+
+
+
+/* ==========================================================
+   ZOOM OUT
+========================================================== */
+
+const zoomOut =
+    document.getElementById(
+        "zoomOut"
+    );
+
+
+if (
+    zoomOut
+) {
+
+    zoomOut.addEventListener(
+
+        "click",
+
+        function () {
+
+
+            camera.position.multiplyScalar(
+                1.15
+            );
+
+
+        }
+
+    );
+
+}
+
+
+
+/* ==========================================================
+   WINDOW RESIZE
+========================================================== */
+
+function resize() {
+
+
+    const width =
+        viewer.clientWidth;
+
+
+    const height =
+        viewer.clientHeight;
+
+
+    if (
+        width <= 0 ||
+        height <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    camera.aspect =
+        width /
+        height;
+
+
+    camera.updateProjectionMatrix();
+
+
+    renderer.setSize(
+
+        width,
+
+        height
+
+    );
+
+}
+
+
+window.addEventListener(
+
+    "resize",
+
+    resize
+
+);
+
+
+resize();
+
+
+
+/* ==========================================================
+   MAIN ANIMATION LOOP
+========================================================== */
+
+const clock =
+    new THREE.Clock();
+
+
+function animate() {
+
+
+    requestAnimationFrame(
+        animate
+    );
+
+
+    const delta =
+        clock.getDelta();
+
+
+    /* --------------------------------------------------
+       HEARTBEAT
+    -------------------------------------------------- */
+
+    updateHeartbeat(
+        delta
+    );
+
+
+    /* --------------------------------------------------
+       GLB ANIMATION
+    -------------------------------------------------- */
+
+    if (
+        animationMixer
+    ) {
+
+        animationMixer.update(
+            delta
+        );
+
+    }
+
+
+    
+  /* --------------------------------------------------
+     BLOOD FLOW ANIMATION CLOCK
+   -------------------------------------------------- */
+
+   if (bloodFlowVisible && !bloodFlowPaused) {
+       bloodFlowTime += delta * bloodFlowSpeed;
+    }
+
+    updateBlueBlood(delta);
+    updateRedBlood(delta);
+
+
+    /* --------------------------------------------------
+       ORBIT CONTROLS
+    -------------------------------------------------- */
+
+    controls.update();
+
+
+    /* --------------------------------------------------
+       RENDER
+    -------------------------------------------------- */
+
+    renderer.render(
+
+        scene,
+
+        camera
+
+    );
+
+}
+
+
+animate();
+
+
+
+/* ==========================================================
+   READY
+========================================================== */
+
+console.log(
+    "✅ Three.js simulation initialized."
+);
+
+/* ==========================================================
+   ANATOMY EXPLORER — STRUCTURE BUTTON MAPPING
+========================================================== */
+
+const anatomyStructureMap = {
+
+    "Aorta": [
+        "ascending_aorta",
+        "aortic_arch"
+    ],
+
+    "Superior Vena Cava": [
+        "superior_vena_cava"
+    ],
+
+    "Right Atrium": [
+        "right_atrium"
+    ],
+
+    "Right Ventricle": [
+        "right_ventricle"
+    ],
+
+    "Left Atrium": [
+        "left_atrium"
+    ],
+
+    "Left Ventricle": [
+        "left_ventricle"
+    ],
+
+    "Pulmonary Artery": [
+        "pulmonary_trunk",
+        "pulmonary_artery"
+    ],
+
+    "Pulmonary Veins": [
+        "pulmonary_vein"
+    ],
+
+    "Tricuspid Valve": [
+        "leaflet_of_right_atrioventricular_valve"
+    ],
+
+    "Mitral Valve": [
+        "leaflet_of_left_atrioventricular_valve"
+    ],
+
+    "Aortic Valve": [
+        "coronary_leaflet",
+        "non-coronary_leaflet"
+    ],
+
+    "Pulmonary Valve": [
+        "leaflet_of_pulmonary_valve"
+    ],
+
+    
+    "Inferior Vena Cava": [
+        "inferior_vena_cava"
+    ]
+
+};
+
+
+/* ==========================================================
+   FIND MESHES FOR A SELECTED STRUCTURE
+========================================================== */
+
+function findAnatomyMeshes(structureName) {
+
+    if (!heartModel) {
+
+        console.warn(
+            "⚠️ Heart model is not ready yet."
+        );
+
+        return [];
+
+    }
+
+    const keywords =
+        anatomyStructureMap[structureName];
+
+    if (!keywords) {
+
+        console.warn(
+            "⚠️ No mapping found for:",
+            structureName
+        );
+
+        return [];
+
+    }
+
+    const foundMeshes = [];
+
+    heartModel.traverse(function (object) {
+
+        if (!object.isMesh) return;
+
+        const meshName =
+            object.name.toLowerCase();
+
+        const matched =
+            keywords.some(function (keyword) {
+
+                return meshName.includes(
+                    keyword.toLowerCase()
+                );
+
+            });
+
+        if (matched) {
+
+            foundMeshes.push(object);
+
+        }
+
+    });
+
+    console.log(
+       "🔍 Anatomy search:",
+       structureName,
+       "| Matches:",
+       foundMeshes.length,
+       "| Mesh names:",
+       foundMeshes.map(function (mesh) {
+          return mesh.name;
+        })
+    );
+
+    return foundMeshes;
+
+}
+
+
+
+/* ==========================================================
+   ANATOMY HIGHLIGHT SYSTEM
+========================================================== */
+
+let highlightedMeshes = [];
+let originalMaterials = new Map();
+let activeAnatomyButton = null;
+let inspectionOriginalMaterials = new Map();
+
+
+function restoreValveInspectionMaterials() {
+
+    inspectionOriginalMaterials.forEach(function (originalMaterial, mesh) {
+        mesh.material = originalMaterial;
+    });
+
+    inspectionOriginalMaterials.clear();
+
+}
+
+
+
+/* ==========================================================
+   VALVE AND CHAMBER INSPECTION MODE
+========================================================== */
+
+function activateValveInspection(structureName) {
+
+    const inspectionStructures = [
+        "Tricuspid Valve",
+        "Mitral Valve",
+        "Aortic Valve",
+        "Pulmonary Valve",
+        "Right Atrium",
+        "Right Ventricle",
+        "Left Atrium",
+        "Left Ventricle"
+    ];
+
+    // Restore normal appearance for other structures.
+    if (!inspectionStructures.includes(structureName)) {
+        restoreValveInspectionMaterials();
+        return;
+    }
+
+    if (!heartModel) {
+        console.warn("Heart model is not ready.");
+        return;
+    }
+
+    // Restore any previous inspection first.
+    restoreValveInspectionMaterials();
+
+    const selectedMeshes = findAnatomyMeshes(structureName);
+
+    if (!selectedMeshes.length) {
+        console.warn("No meshes found for:", structureName);
+        return;
+    }
+
+    const selectedMeshSet = new Set(selectedMeshes);
+
+    heartModel.traverse(function (object) {
+
+        if (!object.isMesh || selectedMeshSet.has(object)) {
+            return;
+        }
+
+        if (!object.material) {
+            return;
+        }
+
+        // Save the original material for Reset View.
+        inspectionOriginalMaterials.set(
+            object,
+            object.material
+        );
+
+        function makeTransparent(material) {
+            const fadedMaterial = material.clone();
+
+            fadedMaterial.transparent = true;
+            fadedMaterial.opacity = 0.12;
+            fadedMaterial.depthWrite = false;
+
+            return fadedMaterial;
+        }
+
+        object.material = Array.isArray(object.material)
+            ? object.material.map(makeTransparent)
+            : makeTransparent(object.material);
+
+    });
+
+    console.log(
+        "Inspection activated:",
+        structureName,
+        "| Selected meshes:",
+        selectedMeshes.map(function (mesh) {
+            return mesh.name;
+        })
+    );
+}
+
+
+
+/* ==========================================================
+   CLEAR CURRENT HIGHLIGHT
+========================================================== */
+
+function clearAnatomyHighlight() {
+
+    highlightedMeshes.forEach(function (mesh) {
+
+        const originalMaterial =
+            originalMaterials.get(mesh);
+
+        if (originalMaterial) {
+
+            mesh.material = originalMaterial;
+
+        }
+
+    });
+
+    highlightedMeshes = [];
+    originalMaterials.clear();
+
+
+    /* Remove active button state */
+
+    if (activeAnatomyButton) {
+
+        activeAnatomyButton.classList.remove(
+            "anatomy-active"
+        );
+
+        activeAnatomyButton = null;
+
+    }
+
+}
+
+
+/* ==========================================================
+   HIGHLIGHT SELECTED ANATOMICAL STRUCTURE
+========================================================== */
+
+function highlightAnatomyStructure(structureName) {
+
+    /* Remove previous highlight */
+
+    clearAnatomyHighlight();
+
+
+    /* Find matching GLB meshes */
+
+    const meshes =
+        findAnatomyMeshes(structureName);
+
+
+    if (meshes.length === 0) {
+
+        console.warn(
+            "⚠️ No meshes found for:",
+            structureName
+        );
+
+        return;
+
+    }
+
+
+    console.log(
+        "✨ Highlighting:",
+        structureName
+    );
+
+    console.log(
+        "🫀 Meshes highlighted:",
+        meshes.length
+    );
+
+
+    /* Apply highlight */
+
+    meshes.forEach(function (mesh) {
+
+        if (!mesh.material) return;
+
+
+        /* Save original material */
+
+        originalMaterials.set(
+            mesh,
+            mesh.material
+        );
+
+
+        /*
+         * Clone material so we do not permanently
+         * modify the original GLB material.
+         */
+
+        if (Array.isArray(mesh.material)) {
+
+            mesh.material =
+                mesh.material.map(function (material) {
+
+                    return material.clone();
+
+                });
+
+        } else {
+
+            mesh.material =
+                mesh.material.clone();
+
+        }
+
+
+        /*
+         * Apply golden anatomical highlight.
+         */
+
+        const materials =
+            Array.isArray(mesh.material)
+                ? mesh.material
+                : [mesh.material];
+
+
+        materials.forEach(function (material) {
+
+            if (material.emissive) {
+
+                material.emissive.set(
+                    0xffcc33
+                );
+
+                material.emissiveIntensity =
+                    1.2;
+
+            }
+
+            /*
+             * Slightly increase brightness.
+             */
+
+            if (material.color) {
+
+                material.color.multiplyScalar(
+                    1.12
+                );
+
+            }
+
+        });
+
+
+        highlightedMeshes.push(mesh);
+
+    });
+
+}
+
+
+
+
+
+
+/* ==========================================================
+   CAMERA FOCUS — FULL HORIZONTAL ORBIT
+   Rotates to the selected structure's viewing side
+========================================================== */
+
+let anatomyCameraAnimationId = null;
+
+function focusCameraOnAnatomy(structureName) {
+
+    const meshes = findAnatomyMeshes(structureName);
+
+    if (!meshes || meshes.length === 0) {
+        console.warn("No meshes found:", structureName);
+        return;
+    }
+
+    if (!heartModel || !camera || !controls) {
+        console.warn("Camera or heart model is not ready.");
+        return;
+    }
+
+    // Cancel any previous camera animation
+    if (anatomyCameraAnimationId !== null) {
+        cancelAnimationFrame(anatomyCameraAnimationId);
+        anatomyCameraAnimationId = null;
+    }
+
+    heartModel.updateMatrixWorld(true);
+
+    // Find selected component bounds
+    const focusBox = new THREE.Box3();
+
+    meshes.forEach(function (mesh) {
+        focusBox.expandByObject(mesh);
+    });
+
+    if (focusBox.isEmpty()) return;
+
+    const focusCenter =
+        focusBox.getCenter(new THREE.Vector3());
+
+    const focusSize =
+        focusBox.getSize(new THREE.Vector3());
+
+    const maxSize = Math.max(
+        focusSize.x,
+        focusSize.y,
+        focusSize.z,
+        0.15
+    );
+
+    // Calculate the complete heart's center
+    const heartBox =
+        new THREE.Box3().setFromObject(heartModel);
+
+    const heartCenter =
+        heartBox.getCenter(new THREE.Vector3());
+
+    // Save current camera state
+    const startPosition = camera.position.clone();
+    const startTarget = controls.target.clone();
+
+    const startOffset =
+        startPosition.clone().sub(heartCenter);
+
+    const startRadius = Math.max(
+        startOffset.length(),
+        2.5
+    );
+
+    // Current horizontal camera angle
+    const startAzimuth = Math.atan2(
+        startOffset.x,
+        startOffset.z
+    );
+
+    // Selected component's direction from heart center
+    const relative = focusCenter.clone().sub(heartCenter);
+
+    // Find the component's horizontal angle
+    // If it is almost centered, retain the current angle.
+    let targetAzimuth = startAzimuth;
+
+    if (Math.hypot(relative.x, relative.z) > 0.05) {
+        targetAzimuth = Math.atan2(
+            relative.x,
+            relative.z
+        );
+    }
+
+    // Ensure a full rotation to the opposite side when necessary.
+    // This chooses the shortest path between the two angles.
+    let angleDifference =
+        targetAzimuth - startAzimuth;
+
+    while (angleDifference > Math.PI) {
+        angleDifference -= Math.PI * 2;
+    }
+
+    while (angleDifference < -Math.PI) {
+        angleDifference += Math.PI * 2;
+    }
+
+    // If the component is on the opposite side, this difference
+    // naturally approaches +180 or -180 degrees.
+    const finalAzimuth =
+        startAzimuth + angleDifference;
+
+    console.log("Selected structure:", structureName);
+    console.log(
+        "Horizontal rotation:",
+        THREE.MathUtils.radToDeg(angleDifference).toFixed(1),
+        "degrees"
+    );
+
+    // Keep camera elevation modest to avoid a top-down view
+    const startElevation = Math.asin(
+        THREE.MathUtils.clamp(
+            startOffset.y / startRadius,
+            -0.25,
+            0.25
+        )
+    );
+
+    const targetElevation = THREE.MathUtils.clamp(
+        startElevation,
+        -0.20,
+        0.20
+    );
+
+    // Calculate distance appropriate for the selected component
+    const fov = THREE.MathUtils.degToRad(camera.fov);
+
+    
+    // Keep the heart at a useful size.
+    // Do not use the entire cardiovascular model bounds,
+    // because the long vessels make the heart appear tiny.
+
+    const componentDistance =
+        maxSize / (2 * Math.tan(fov / 2)) * 2.8;
+
+    // Use the current camera distance as a sensible upper limit
+    // so selecting a component does not zoom far away.
+    const distance = THREE.MathUtils.clamp(
+        componentDistance,
+        2.5,
+        Math.max(startRadius * 0.85, 3.5)
+    );
+
+
+    // Destination camera position around the selected component
+    const targetPosition = new THREE.Vector3(
+        focusCenter.x +
+            distance *
+            Math.sin(finalAzimuth) *
+            Math.cos(targetElevation),
+
+        focusCenter.y +
+            distance *
+            Math.sin(targetElevation),
+
+        focusCenter.z +
+            distance *
+            Math.cos(finalAzimuth) *
+            Math.cos(targetElevation)
+    );
+
+    const duration = Math.max(
+        1000,
+        Math.abs(angleDifference) * 900
+    );
+
+    const startTime = performance.now();
+    const previousControlsEnabled = controls.enabled;
+
+    controls.enabled = false;
+
+    function animateCameraFocus() {
+
+        const elapsed = performance.now() - startTime;
+
+        const progress = Math.min(
+            elapsed / duration,
+            1
+        );
+
+        const eased = progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+        camera.position.lerpVectors(
+            startPosition,
+            targetPosition,
+            eased
+        );
+
+        controls.target.lerpVectors(
+            startTarget,
+            focusCenter,
+            eased
+        );
+
+        camera.lookAt(controls.target);
+
+        if (progress < 1) {
+
+            anatomyCameraAnimationId =
+                requestAnimationFrame(animateCameraFocus);
+
+        } else {
+
+            camera.position.copy(targetPosition);
+            controls.target.copy(focusCenter);
+
+            camera.lookAt(focusCenter);
+            controls.update();
+
+            controls.enabled = previousControlsEnabled;
+            anatomyCameraAnimationId = null;
+        }
+    }
+
+    animateCameraFocus();
+}
+
+
+
+/* ==========================================================
+   RESET VIEW — RETURN TO ORIGINAL FULL-HEART VIEW
+========================================================== */
+
+function resetHeartView() {
+
+    // Reset View also restores every anatomical mesh before moving the camera.
+    restoreAllAnatomyParts();
+
+    if (
+        !camera ||
+        !controls ||
+        !initialCameraPosition ||
+        !initialCameraTarget
+    ) {
+        console.warn("Original camera view is not ready.");
+        return;
+    }
+
+    // Stop any ongoing anatomy camera animation
+    if (anatomyCameraAnimationId !== null) {
+        cancelAnimationFrame(anatomyCameraAnimationId);
+        anatomyCameraAnimationId = null;
+    }
+
+    // Restore the previous control state after animation
+    const previousControlsEnabled = controls.enabled;
+    controls.enabled = false;
+
+    // Clear the current anatomical highlight
+    clearAnatomyHighlight();
+    
+    restoreValveInspectionMaterials();
+
+    const startPosition = camera.position.clone();
+    const startTarget = controls.target.clone();
+
+    const endPosition = initialCameraPosition.clone();
+    const endTarget = initialCameraTarget.clone();
+
+    const duration = 900;
+    const startTime = performance.now();
+
+    function animateReset() {
+
+        const elapsed = performance.now() - startTime;
+
+        const progress = Math.min(
+            elapsed / duration,
+            1
+        );
+
+        const eased = progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+        camera.position.lerpVectors(
+            startPosition,
+            endPosition,
+            eased
+        );
+
+        controls.target.lerpVectors(
+            startTarget,
+            endTarget,
+            eased
+        );
+
+        camera.lookAt(controls.target);
+
+        if (progress < 1) {
+
+            anatomyCameraAnimationId =
+                requestAnimationFrame(animateReset);
+
+        } else {
+
+            camera.position.copy(endPosition);
+            controls.target.copy(endTarget);
+
+            camera.lookAt(endTarget);
+            controls.update();
+
+            controls.enabled = previousControlsEnabled;
+            anatomyCameraAnimationId = null;
+
+            console.log("Returned to original full-heart view.");
+        }
+    }
+
+    animateReset();
+}
+
+// Connect the Reset View button
+document.getElementById("resetViewBtn")
+    ?.addEventListener("click", resetHeartView);
+
+
+
+
+
+
+/* ==========================================================
+   DUAL ANATOMY MODE
+   Highlight Mode: show the complete heart, highlight one part,
+   and focus the camera as in the original highlighting version.
+   Dissection Mode: show only selected parts; selections accumulate.
+   Switching modes restores the full model and clears temporary effects.
+========================================================== */
+
+let anatomyInteractionMode = "highlight";
+const selectedAnatomyStructures = new Set();
+const originalAnatomyVisibility = new Map();
+
+function rememberOriginalAnatomyVisibility() {
+    if (!heartModel || originalAnatomyVisibility.size) return;
+    heartModel.traverse(function (object) {
+        if (object.isMesh) originalAnatomyVisibility.set(object, object.visible);
+    });
+}
+
+function updateAnatomyButtonStates() {
+    document.querySelectorAll('.anatomy-btn[data-structure]').forEach(function (button) {
+        const name = button.textContent.trim();
+        const isSelected = selectedAnatomyStructures.has(name);
+        button.classList.toggle('anatomy-active', isSelected);
+        button.classList.toggle('active', isSelected);
+        button.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+    });
+}
+
+function updateAnatomyModeUI() {
+    const highlightButton = document.getElementById('highlightModeBtn');
+    const dissectionButton = document.getElementById('dissectionModeBtn');
+    const description = document.getElementById('anatomyModeDescription');
+    const isHighlight = anatomyInteractionMode === 'highlight';
+
+    highlightButton.classList.toggle('mode-active', isHighlight);
+    dissectionButton.classList.toggle('mode-active', !isHighlight);
+    highlightButton.setAttribute('aria-pressed', isHighlight ? 'true' : 'false');
+    dissectionButton.setAttribute('aria-pressed', !isHighlight ? 'true' : 'false');
+
+    description.textContent = isHighlight
+        ? 'Select a structure to highlight it while keeping the complete heart visible.'
+        : 'Select parts to isolate them. Select more parts to reveal them together; click again to hide a part.';
+}
+
+function applyAnatomyVisibility() {
+    if (!heartModel) return;
+    rememberOriginalAnatomyVisibility();
+    const visibleMeshes = new Set();
+
+    selectedAnatomyStructures.forEach(function (name) {
+        findAnatomyMeshes(name).forEach(function (mesh) { visibleMeshes.add(mesh); });
+    });
+
+    heartModel.traverse(function (object) {
+        if (!object.isMesh) return;
+        const originalVisible = originalAnatomyVisibility.has(object)
+            ? originalAnatomyVisibility.get(object) : true;
+        object.visible = selectedAnatomyStructures.size === 0
+            ? originalVisible
+            : (originalVisible && visibleMeshes.has(object));
+    });
+
+    updateAnatomyButtonStates();
+}
+
+function restoreAllAnatomyParts() {
+    selectedAnatomyStructures.clear();
+
+    if (heartModel) {
+        rememberOriginalAnatomyVisibility();
+        heartModel.traverse(function (object) {
+            if (!object.isMesh) return;
+            object.visible = originalAnatomyVisibility.has(object)
+                ? originalAnatomyVisibility.get(object) : true;
+        });
+    }
+
+    clearAnatomyHighlight();
+    restoreValveInspectionMaterials();
+    updateAnatomyButtonStates();
+}
+
+function switchAnatomyMode(nextMode) {
+    if (nextMode !== 'highlight' && nextMode !== 'dissection') return;
+    anatomyInteractionMode = nextMode;
+    restoreAllAnatomyParts();
+    updateAnatomyModeUI();
+}
+
+document.getElementById('highlightModeBtn').addEventListener('click', function () {
+    switchAnatomyMode('highlight');
+});
+
+document.getElementById('dissectionModeBtn').addEventListener('click', function () {
+    switchAnatomyMode('dissection');
+});
+
+document.querySelectorAll('.anatomy-btn[data-structure]').forEach(function (button) {
+    button.addEventListener('click', function () {
+        const structureName = button.textContent.trim();
+
+        if (!anatomyStructureMap[structureName]) {
+            console.warn('No anatomical mesh mapping for:', structureName);
+            return;
+        }
+
+        const matches = findAnatomyMeshes(structureName);
+        if (!matches.length) {
+            console.warn('No GLB meshes found for:', structureName);
+            return;
+        }
+
+        if (anatomyInteractionMode === 'highlight') {
+            // Keep every anatomical mesh visible in highlight mode.
+            selectedAnatomyStructures.clear();
+            selectedAnatomyStructures.add(structureName);
+            if (heartModel) {
+                rememberOriginalAnatomyVisibility();
+                heartModel.traverse(function (object) {
+                    if (object.isMesh) {
+                        object.visible = originalAnatomyVisibility.has(object)
+                            ? originalAnatomyVisibility.get(object) : true;
+                    }
+                });
+            }
+            clearAnatomyHighlight();
+            restoreValveInspectionMaterials();
+            activateValveInspection(structureName);
+            highlightAnatomyStructure(structureName);
+            focusCameraOnAnatomy(structureName);
+            updateAnatomyButtonStates();
+        } else {
+            // Dissection selections accumulate; clicking a selected part hides it.
+            if (selectedAnatomyStructures.has(structureName)) {
+                selectedAnatomyStructures.delete(structureName);
+            } else {
+                selectedAnatomyStructures.add(structureName);
+            }
+            clearAnatomyHighlight();
+            restoreValveInspectionMaterials();
+            applyAnatomyVisibility();
+        }
+    });
+});
+
+document.getElementById('showAllAnatomyBtn').addEventListener('click', function () {
+    restoreAllAnatomyParts();
+});
+
+updateAnatomyModeUI();
+
+
+
+
+    } catch (error) {
+        console.error("❌ Error loading heart.glb or initializing the explorer:", error);
+        const status = document.querySelector(".status");
+        if (status) {
+            status.innerHTML = '<span class="status-dot"></span> MODEL LOAD ERROR';
+            status.style.color = "#fca5a5";
+        }
+    }
+}
+
+initializeHeartExplorer().catch(function (error) {
+    console.error("❌ Cardiovascular Explorer initialization failed:", error);
+});
+</script>
+
+
+</body>
+
+</html>

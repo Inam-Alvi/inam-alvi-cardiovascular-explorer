@@ -1,0 +1,31 @@
+CARDIOVASCULAR EXPLORER — OFFLINE USB EDITION
+
+HOW TO USE
+1. Copy the complete Cardiovascular-Explorer-Offline folder to the Windows 10 computer (or run it from USB).
+2. Double-click Start-Simulation.bat.
+3. A console window will remain open and the simulation should open in the default browser (Edge or Chrome).
+4. Keep the console window open while using the simulation.
+5. Close the console window to stop the local server.
+
+REQUIREMENTS
+- Windows 10 with built-in Windows PowerShell 5.1 and Microsoft Edge or Google Chrome.
+- No internet, Python, VS Code, Node.js, or Live Server required.
+- If the browser does not open automatically, open this address in Edge/Chrome: http://127.0.0.1:8765/
+  (If port 8765 is busy, check the address printed in the console; it may use 8766–8775.)
+
+IMPORTANT
+- Keep all files and folders together; do not move the HTML file out of its folder.
+- This launcher serves files only on the same computer (127.0.0.1); it does not share the server over a network.
+- This package has the Three.js modules, heart GLB model, and Draco decoder locally. External Google Fonts and Font Awesome CDN links were removed so the core simulation does not depend on internet access. Some decorative icons may appear as blanks or fallbacks.
+- Test with Wi-Fi/Ethernet disconnected before giving it to students.
+- If Windows SmartScreen or security software blocks the launcher, ask your school's IT administrator to review it rather than bypassing policy.
+
+
+UPDATE: Offline-safe control icons and the standard Inam Alvi footer have been added.
+
+DUAL ANATOMY MODES
+- Highlight Mode is selected by default. Click a structure to highlight it while the full heart remains visible; the camera focuses on the selected structure.
+- Dissection Mode isolates selected structures. Select additional parts to reveal them together; click a selected part again to hide it.
+- Show All Parts restores the complete heart. Reset View restores the complete heart and original camera view.
+- Switching between modes clears temporary selections and restores the full model.
+- Heartbeat remains stationary until Start is pressed; blood-flow stages and the standard footer are retained.
